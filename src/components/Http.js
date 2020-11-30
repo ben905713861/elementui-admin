@@ -29,7 +29,7 @@ instance.interceptors.response.use(
 		switch(error.response.status) {
 		case 401:
 			Message.error('登录信息失效');
-			Router.push('/login');
+			noLogin();
 			break;
 		case 403:
 			Message.error('没有操作权限');
@@ -95,7 +95,7 @@ instance.logout = () => {
 }
 
 function noLogin() {
-	
+	Router.push('/login');
 }
 
 export default instance;
