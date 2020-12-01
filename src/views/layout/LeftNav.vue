@@ -49,6 +49,14 @@
 				<i class="el-icon-s-custom"></i>
 				<span slot="title">管理员管理</span>
 			</el-menu-item>
+			<el-menu-item index="Role">
+				<i class="el-icon-s-custom"></i>
+				<span slot="title">角色管理</span>
+			</el-menu-item>
+			<el-menu-item index="Permission">
+				<i class="el-icon-s-custom"></i>
+				<span slot="title">菜单与权限管理</span>
+			</el-menu-item>
 			<el-submenu index="nav1">
 				<template slot="title">
 					<i class="el-icon-edit"></i>
@@ -92,17 +100,17 @@ export default {
     			authorities: [{}],
     		},
     		managerDTO: {
-    			password: "",
-    			confirmPassword: "",
+    			password: '',
+    			confirmPassword: '',
     		},
     		managerUpdateRules: {
     			password: [
-    				{required: true, message: "请输入密码"},
-    				{min: 8, max:20, message: "长度在8-20之间"},
+    				{required: true, message: '请输入密码'},
+    				{min: 8, max:20, message: '长度在8-20之间'},
     			],
     			confirmPassword: [
-    				{required: true, message: "请确认密码"},
-    				{min: 8, max:20, message: "长度在8-20之间"},
+    				{required: true, message: '请确认密码'},
+    				{min: 8, max:20, message: '长度在8-20之间'},
     				{
     					required: true,
     					validator: (rule, value, callback) => {

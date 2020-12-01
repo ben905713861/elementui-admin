@@ -9,6 +9,17 @@
 		margin: 0;
 		padding: 0;
 	}
+	.bg-gray {
+		background-color: #f5f5f5!important;
+	}
+	.pagination {
+		margin: 8px 0;
+		text-align: right;
+	}
+	.el-dialog__body {
+		border-top: 1px solid #eee;
+		border-bottom: 1px solid #eee;
+	}
 </style>
 
 <template>

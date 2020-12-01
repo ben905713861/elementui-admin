@@ -1,5 +1,5 @@
 const state = {
-    activeTabName: 'home',
+    activeTabName: 'Home',
     tabMap: {},
 }
 

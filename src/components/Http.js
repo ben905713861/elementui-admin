@@ -77,7 +77,7 @@ instance.ajax = (path, option) => {
 				Message.success('操作成功');
 			}
 		} else {
-			Message.success(res.msg);
+			Message.error(res.msg);
 			falsefun && falsefun(res);
 		}
 		endfun && endfun();

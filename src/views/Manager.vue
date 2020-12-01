@@ -1,7 +1,5 @@
 <style>
-.bg-gray {
-	background-color: #f5f5f5!important;
-}
+
 </style>
 
 
@@ -36,13 +34,13 @@
 			<el-table-column prop="enabled" label="账户是否可用" :formatter="formatBoolean" align="center"></el-table-column>
 			<el-table-column align="center" label="操作" width="200">
 				<template slot-scope="scope" v-if="scope.row.roleId != 1">
-					<el-button size="mini" type="warning" @click="openDialog(scope.row.managerId)" icon="el-icon-edit-outline">编辑</el-button>
+					<el-button size="mini" type="warning" @click="openDialog(scope.row.managerId)" icon="el-icon-edit-outline">修改</el-button>
 					<el-button size="mini" type="danger" @click="deleteData(scope.row.managerId)" icon="el-icon-delete">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
 
-		<el-pagination style="margin: 8px 0; text-align: right"
+		<el-pagination class="pagination"
 			background=""
 			layout="total,prev,pager,next,sizes"
 			:total="queryResult.total"
@@ -90,8 +88,8 @@
 				</el-form-item>
 			</el-form>
 			<span slot="footer">
-			<el-button type="success" @click="saveData()">保存</el-button>
-		</span>
+				<el-button type="success" @click="saveData()">保存</el-button>
+			</span>
 		</el-dialog>
 
 	</div>
@@ -132,7 +130,7 @@ export default {
 				{required: true, message: "请确认密码"},
 				{min: 8, max:20, message: "长度在8-20之间"},
 				{
-					validator: (rule, value, callback) => {
+					validator(rule, value, callback) {
 						if (value !== this.managerDTO.password) {
 							callback(new Error('两次输入密码不一致!'))
 						} else {
