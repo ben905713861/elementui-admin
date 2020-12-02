@@ -39,7 +39,7 @@ export default {
     name: 'Home',
     components: {
         LeftNav,
-        RightPane
+        RightPane,
     },
     mounted() {
     	//加载上次关闭的窗口

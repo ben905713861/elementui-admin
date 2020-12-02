@@ -36,7 +36,12 @@
 			<div class="text-white">
 				<div>
 					<span>{{ managerInfo.username }}</span>
-					<span>{{ managerInfo.authorities[0].authname }}</span>
+					-
+					<span>
+						<template v-for="roleId in managerInfo.roleIds">
+							{{ roleMap[roleId].name }} 
+						</template>
+					</span>
 				</div>
 				<div class="a-control">
 					<a @click="open_updateManagerDialog">[修改资料]</a>
@@ -96,9 +101,8 @@ export default {
 	data() {
     	return {
     		updateManagerDialog: false,
-    		managerInfo: {
-    			authorities: [{}],
-    		},
+    		roleMap: {},
+    		managerInfo: {},
     		managerDTO: {
     			password: '',
     			confirmPassword: '',
@@ -126,6 +130,15 @@ export default {
     	}
     },
     mounted() {
+    	//初始化角色表
+		http.ajax('/service-auth/role', {
+			truefun: res => {
+				res.forEach(role => {
+					this.roleMap[role.roleId] = role;
+				});
+			},
+		});
+    	//加载用户信息
 		http.ajax('/service-auth/manager/self', {
 			truefun: (resData) => {
 				this.managerInfo = resData;
@@ -135,7 +148,7 @@ export default {
 	methods: {
 		//导入/store/navTabs.js中的addTab方法
 		...mapMutations('navTabs', [
-			'addTab'
+			'addTab',
 		]),
 		open_updateManagerDialog() {
 			this.updateManagerDialog = true;

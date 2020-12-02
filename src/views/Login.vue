@@ -38,7 +38,7 @@
 	<div id="login-form" class="full-screen">
 		<div>
 			<h1>系统登录</h1>
-			<el-form :model="loginDTO" :rules="loginRules" ref="loginForm">
+			<el-form :model="loginDTO" :rules="loginRules" ref="loginForm" @submit.native.prevent="">
 				<el-form-item prop="username">
 					<el-input type="text" v-model="loginDTO.username" autofocus="">
 						<template slot="prepend">账户：</template>
@@ -50,7 +50,7 @@
 					</el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="login(0)">登录</el-button>
+					<el-button type="primary" native-type="submit" @click="login(0)">登录</el-button>
 				</el-form-item>
 			</el-form>
 		</div>

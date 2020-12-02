@@ -1,4 +1,5 @@
 import Axios from 'axios'
+import qs from 'qs'
 import Router from '@/router/index'
 import { Message } from 'element-ui'
 
@@ -68,6 +69,9 @@ instance.ajax = (path, option) => {
 	if(method == 'get') {
 		data = {
 			params: data,
+			paramsSerializer: params => {
+				return qs.stringify(params, { indices: false })
+			},
 		}
 	}
 	instance[method](path, data).then(res => {

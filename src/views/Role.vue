@@ -5,15 +5,15 @@
 
 <template>
 	<div>
-		<el-form :model="queryParams" ref="searchForm" label-width="auto" :inline="true">
+		<el-form :model="queryParams" ref="searchForm" label-width="auto" :inline="true" @submit.native.prevent="">
 			<el-form-item>
 				<el-button type="success" @click="openDialog()" icon="el-icon-plus">新增</el-button>
 			</el-form-item>
-			<el-form-item prop="username">
+			<el-form-item prop="name">
 				<el-input type="text" v-model="queryParams.name" placeholder="角色名"></el-input>
 			</el-form-item>
 			<el-form-item>
-				<el-button type="primary" @click="search(true)" icon="el-icon-search">搜索</el-button>
+				<el-button type="primary" native-type="submit" @click="search()" icon="el-icon-search">搜索</el-button>
 				<el-button @click="resetForm('searchForm')" icon="el-icon-circle-close">重置</el-button>
 			</el-form-item>
 		</el-form>
@@ -24,7 +24,7 @@
 			<el-table-column prop="authority" label="角色标识" align="center"></el-table-column>
 			<el-table-column align="center" label="操作" width="300">
 				<template slot-scope="scope" v-if="scope.row.roleId != 1">
-					<el-button size="mini" type="default" @click="openRolePermissionDialog(scope.row.managerId)" icon="el-icon-edit-outline">分配权限</el-button>
+					<el-button size="mini" type="default" @click="openRolePermissionDialog(scope.row.roleId)" icon="el-icon-edit-outline">分配权限</el-button>
 					<el-button size="mini" type="warning" @click="openDialog(scope.row.roleId)" icon="el-icon-edit-outline">修改</el-button>
 					<el-button size="mini" type="danger" @click="deleteData(scope.row.roleId)" icon="el-icon-delete">删除</el-button>
 				</template>
@@ -55,11 +55,13 @@
 		<el-dialog title="分配权限"
 			:visible.sync="updateRolePermissionDialog"
 			:close-on-click-modal="false"
-			@close="resetForm('updateRolePermissionForm')"
+			@close="resetRolePermissionTree()"
 			width="30%">
 			<el-tree :data="permissionList"
 				show-checkbox=""
 				default-expand-all=""
+				check-on-click-node	=""
+				:expand-on-click-node="false"
 				node-key="permissionId"
 				ref="permissionTree"
 				:props="{children: 'children', label: 'name'}">
@@ -108,7 +110,9 @@ export default {
 	  	},
 	  	updateRoleDialog: false,
 	  	permissionList: [],
-	  	rolePermissionDTO: {},
+	  	rolePermissionDTO: {
+	  		roleId: 0,
+	  	},
 	  	updateRolePermissionDialog: false,
 	  }
 	},
@@ -147,6 +151,7 @@ export default {
 			});
 		},
 		resetForm(formName) {
+			console.log(formName)
 			this.$refs[formName].resetFields();
 		},
 		openDialog(roleId) {
@@ -160,13 +165,17 @@ export default {
 			this.updateRoleDialog = true;
 		},
 		openRolePermissionDialog(roleId) {
-			if(roleId != undefined) {
-				http.ajax('/service-auth/role/' + roleId, {
-					truefun: resData => {
-						this.roleDTO = resData;
-					},
-				});
-			}
+			http.ajax('/service-auth/role/rolePermission/' + roleId, {
+				truefun: resData => {
+					resData.forEach(permissionId => {
+						let node = this.$refs['permissionTree'].getNode(permissionId);
+						if(node.isLeaf) {
+							this.$refs['permissionTree'].setChecked(permissionId, true, true);
+						}
+					});
+					this.rolePermissionDTO.roleId = roleId;
+				},
+			});
 			this.updateRolePermissionDialog = true;
 		},
 		saveData() {
@@ -186,11 +195,31 @@ export default {
 			});
 		},
 		saveRolePermission() {
-			console.log(this.$refs['permissionTree'].getCheckedKeys());
+			let leafKeys = this.$refs['permissionTree'].getCheckedKeys();
+			let halfKeys = this.$refs['permissionTree'].getHalfCheckedKeys();
+			let keys = [...leafKeys, ...halfKeys];
+			http.ajax('/service-auth/role/rolePermission/' + this.rolePermissionDTO.roleId, {
+				method: 'post',
+				data: keys,
+				truefun: resData => {
+					this.updateRolePermissionDialog = false;
+				},
+			});
 		},
-		deleteData(v1) {
-			console.log(v1)
-			this.search();
+		resetRolePermissionTree() {
+			this.$refs['permissionTree'].setCheckedKeys([]);
+		},
+		deleteData(roleId) {
+			this.$confirm('确定删除？', '操作警告')
+			.then(() => {
+				http.ajax('/service-auth/role/' + roleId, {
+					method: 'delete',
+					truefun: resData => {
+						this.search();
+					},
+				});
+			})
+			.catch(() => {});
 		},
 		formatBoolean(row, column, value) {
 			return value ? '是' : '否';
