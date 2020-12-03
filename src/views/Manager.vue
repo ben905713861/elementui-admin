@@ -104,8 +104,8 @@
 
 
 <script>
-import http from '@/components/Http';
 import { Message } from "element-ui";
+import http from '@/components/Http';
 
 export default {
 	data() {

@@ -8,9 +8,8 @@
 
 <template>
 	<div class="right-pane">
-		<span>{{ tabMap.length }}</span>
 		<el-tabs :value="activeTabName" @tab-remove="closeTab" @tab-click="tabClick">
-			<el-tab-pane key="Home" name="Home" label="主页">
+			<el-tab-pane name="Home" label="首页">
 				<async-component :is="homeComponent"></async-component>
 			</el-tab-pane>
 			<el-tab-pane v-for="(item, key) in tabMap" :key="key" :name="key" :label="item.label" closable="">

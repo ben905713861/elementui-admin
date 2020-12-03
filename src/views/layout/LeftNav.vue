@@ -49,29 +49,27 @@
 				</div>
 			</div>
 		</div>
-		<el-menu @select="addTab" default-active="User" background-color="#324157" text-color="#fff">
-			<el-menu-item index="Manager">
-				<i class="el-icon-s-custom"></i>
-				<span slot="title">管理员管理</span>
-			</el-menu-item>
-			<el-menu-item index="Role">
-				<i class="el-icon-s-custom"></i>
-				<span slot="title">角色管理</span>
-			</el-menu-item>
-			<el-menu-item index="Permission">
-				<i class="el-icon-s-custom"></i>
-				<span slot="title">菜单与权限管理</span>
-			</el-menu-item>
-			<el-submenu index="nav1">
-				<template slot="title">
-					<i class="el-icon-edit"></i>
-					<span slot="title">导航一</span>
+		<el-menu @select="addTab" background-color="#324157" text-color="#fff">
+			<template v-for="c1 in navTree">
+				<template v-if="c1.children">
+					<el-submenu v-if="managerInfo.permissionIds.has(c1.permissionId)" :index="c1.permissionId.toString()">
+						<template slot="title">
+							<i v-if="c1.icon" :class="c1.icon"></i>
+							<span slot="title">{{ c1.name }}</span>
+						</template>
+						<el-menu-item v-for="(c2,j) in c1.children" :key="j" v-if="managerInfo.permissionIds.has(c2.permissionId)" :index="c2.permissionId.toString()">
+							<i v-if="c2.icon" :class="c2.icon"></i>
+							<span slot="title">{{ c2.name }}</span>
+						</el-menu-item>
+					</el-submenu>
 				</template>
-				<el-menu-item index="User">
-					<i class="el-icon-view"></i>
-					<span slot="title">用户管理</span>
-				</el-menu-item>
-			</el-submenu>
+				<template v-else="">
+					<el-menu-item v-if="managerInfo.permissionIds.has(c1.permissionId)" :index="c1.permissionId.toString()">
+						<i v-if="c1.icon" :class="c1.icon"></i>
+						<span slot="title">{{ c1.name }}</span>
+					</el-menu-item>
+				</template>
+			</template>
 		</el-menu>
 		
 		<el-dialog title="修改用户信息" :visible.sync="updateManagerDialog" @close="close_updateManagerDialog" :close-on-click-modal="false" width="30%" :inline="true">
@@ -95,14 +93,18 @@
 import { mapMutations } from 'vuex'
 import { Message } from "element-ui";
 import http from '@/components/Http';
+import permisTree from '@/components/PermissionTree';
 
 export default {
 	name: 'LeftNav',
 	data() {
     	return {
+    		navTree: [],
     		updateManagerDialog: false,
     		roleMap: {},
-    		managerInfo: {},
+    		managerInfo: {
+    			permissionIds: new Set(),
+    		},
     		managerDTO: {
     			password: '',
     			confirmPassword: '',
@@ -130,25 +132,57 @@ export default {
     	}
     },
     mounted() {
-    	//初始化角色表
-		http.ajax('/service-auth/role', {
-			truefun: res => {
-				res.forEach(role => {
+//  	new Promise((reslove, reject) => {
+//  		http.get('/service-auth/role').then(res => {
+//  			if(res.status != 0) {
+//	    			reject(res.msg);
+//	    		}
+//  		})
+//  	});
+    	
+    	http.get('/service-auth/role')
+	    	.then((res) => {
+	    		if(res.status != 0) {
+	    			throw res.msg;
+	    		}
+	    		//初始化角色表
+	    		res.data.forEach(role => {
 					this.roleMap[role.roleId] = role;
 				});
-			},
-		});
-    	//加载用户信息
-		http.ajax('/service-auth/manager/self', {
-			truefun: (resData) => {
-				this.managerInfo = resData;
-			},
-		});
+				//获取菜单
+				return http.get('/service-auth/index/menu');
+	    	})
+	    	.then((res) => {
+	    		if(res.status != 0) {
+	    			throw res.msg;
+	    		}
+	    		let permissionList = res.data;
+	    		//将权限表缓存到store
+	    		let permissionMap = {};
+	    		permissionList.forEach(permission => {
+	    			permissionMap[permission.permissionId] = permission;
+	    		});
+	    		this.initPermissionMap(permissionMap);
+	    		//渲染左导航
+	    		this.navTree = permisTree.arrange(permissionList);
+	    		return http.get('/service-auth/index/manager');
+	    	})
+	    	.then((res) => {
+	    		if(res.status != 0) {
+	    			throw res.msg;
+	    		}
+	    		//加载用户信息
+	    		res.data.permissionIds = new Set(res.data.permissionIds);
+	    		this.managerInfo = res.data;
+	    	})
+	    	.catch(msg => {
+	    		Message.error(msg);
+	    	});
 	},
 	methods: {
 		//导入/store/navTabs.js中的addTab方法
 		...mapMutations('navTabs', [
-			'addTab',
+			'initPermissionMap','addTab',
 		]),
 		open_updateManagerDialog() {
 			this.updateManagerDialog = true;
@@ -162,7 +196,7 @@ export default {
 					Message.error('表单信息错误');
 					return;
 				}
-				http.ajax('/service-auth/manager/self', {
+				http.ajax('/service-auth/index/manager', {
 					method: 'put',
 					data: this.managerDTO,
 					truefun: (resData) => {

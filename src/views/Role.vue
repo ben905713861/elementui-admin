@@ -76,8 +76,9 @@
 
 
 <script>
-import http from '@/components/Http';
 import { Message } from "element-ui";
+import http from '@/components/Http';
+import permisTree from '@/components/PermissionTree';
 
 export default {
 	data() {
@@ -121,23 +122,7 @@ export default {
 		//加载权限树
 		http.ajax('/service-auth/permission', {
 			truefun: res => {
-				let permissionId2entity = {};
-				res.forEach((row) => {
-					permissionId2entity[row.permissionId] = row;
-					if(row.parentId != 0) {
-						if(permissionId2entity[row.parentId].children == undefined) {
-							permissionId2entity[row.parentId].children = [];
-						}
-						permissionId2entity[row.parentId].children.push(row);
-					}
-				});
-				let newList = [];
-				for(let permissionId in permissionId2entity) {
-					if(permissionId2entity[permissionId].parentId == 0) {
-						newList.push(permissionId2entity[permissionId]);
-					}
-				}
-				this.permissionList = newList;
+				this.permissionList = permisTree.arrange(res);
 			},
 		});
 	},

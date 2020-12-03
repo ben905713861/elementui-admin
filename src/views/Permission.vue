@@ -36,6 +36,7 @@
 
 <script>
 import http from '@/components/Http';
+import permisTree from '@/components/PermissionTree';
 import { Message } from "element-ui";
 
 export default {
@@ -54,23 +55,7 @@ export default {
 		search() {
 			http.ajax('/service-auth/permission', {
 				truefun: res => {
-					let permissionId2entity = {};
-					res.forEach((row) => {
-						permissionId2entity[row.permissionId] = row;
-						if(row.parentId != 0) {
-							if(permissionId2entity[row.parentId].children == undefined) {
-								permissionId2entity[row.parentId].children = [];
-							}
-							permissionId2entity[row.parentId].children.push(row);
-						}
-					});
-					let newList = [];
-					for(let permissionId in permissionId2entity) {
-						if(permissionId2entity[permissionId].parentId == 0) {
-							newList.push(permissionId2entity[permissionId]);
-						}
-					}
-					this.queryResult.rows = newList;
+					this.queryResult.rows = permisTree.arrange(res);
 				},
 			});
 		},
