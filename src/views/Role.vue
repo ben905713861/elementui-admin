@@ -136,7 +136,6 @@ export default {
 			});
 		},
 		resetForm(formName) {
-			console.log(formName)
 			this.$refs[formName].resetFields();
 		},
 		openDialog(roleId) {

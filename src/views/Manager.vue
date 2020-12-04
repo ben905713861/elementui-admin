@@ -162,7 +162,7 @@ export default {
 	},
 	mounted() {
 		this.search(true);
-		http.ajax('/service-auth/role', {
+		http.ajax('/service-auth/index/role', {
 			data: this.queryParams,
 			truefun: res => {
 				res.forEach(role => {

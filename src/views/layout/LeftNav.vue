@@ -52,19 +52,21 @@
 		<el-menu @select="addTab" background-color="#324157" text-color="#fff">
 			<template v-for="c1 in navTree">
 				<template v-if="c1.children">
-					<el-submenu v-if="managerInfo.permissionIds.has(c1.permissionId)" :index="c1.permissionId.toString()">
+					<el-submenu v-if="isShowMenuByPermission(c1.permissionId)" :index="c1.permissionId.toString()">
 						<template slot="title">
 							<i v-if="c1.icon" :class="c1.icon"></i>
 							<span slot="title">{{ c1.name }}</span>
 						</template>
-						<el-menu-item v-for="(c2,j) in c1.children" :key="j" v-if="managerInfo.permissionIds.has(c2.permissionId)" :index="c2.permissionId.toString()">
+						<el-menu-item v-for="(c2,j) in c1.children" :key="j"
+							v-if="isShowMenuByPermission(c2.permissionId)"
+							:index="c2.permissionId.toString()">
 							<i v-if="c2.icon" :class="c2.icon"></i>
 							<span slot="title">{{ c2.name }}</span>
 						</el-menu-item>
 					</el-submenu>
 				</template>
 				<template v-else="">
-					<el-menu-item v-if="managerInfo.permissionIds.has(c1.permissionId)" :index="c1.permissionId.toString()">
+					<el-menu-item v-if="isShowMenuByPermission(c1.permissionId)" :index="c1.permissionId.toString()">
 						<i v-if="c1.icon" :class="c1.icon"></i>
 						<span slot="title">{{ c1.name }}</span>
 					</el-menu-item>
@@ -72,7 +74,12 @@
 			</template>
 		</el-menu>
 		
-		<el-dialog title="修改用户信息" :visible.sync="updateManagerDialog" @close="close_updateManagerDialog" :close-on-click-modal="false" width="30%" :inline="true">
+		<el-dialog title="修改用户信息"
+			:visible.sync="updateManagerDialog"
+			@close="close_updateManagerDialog"
+			:close-on-click-modal="false"
+			width="30%"
+			:inline="true">
     		<el-form :model="managerDTO" :rules="managerUpdateRules" ref="updateManagerForm" label-width="auto">
     			<el-form-item label="密码" prop="password">
 					<el-input type="password" v-model="managerDTO.password"></el-input>
@@ -104,6 +111,7 @@ export default {
     		roleMap: {},
     		managerInfo: {
     			permissionIds: new Set(),
+    			roleIds: new Set(),
     		},
     		managerDTO: {
     			password: '',
@@ -132,15 +140,7 @@ export default {
     	}
     },
     mounted() {
-//  	new Promise((reslove, reject) => {
-//  		http.get('/service-auth/role').then(res => {
-//  			if(res.status != 0) {
-//	    			reject(res.msg);
-//	    		}
-//  		})
-//  	});
-    	
-    	http.get('/service-auth/role')
+    	http.get('/service-auth/index/role')
 	    	.then((res) => {
 	    		if(res.status != 0) {
 	    			throw res.msg;
@@ -173,6 +173,7 @@ export default {
 	    		}
 	    		//加载用户信息
 	    		res.data.permissionIds = new Set(res.data.permissionIds);
+	    		res.data.roleIds = new Set(res.data.roleIds);
 	    		this.managerInfo = res.data;
 	    	})
 	    	.catch(msg => {
@@ -184,6 +185,14 @@ export default {
 		...mapMutations('navTabs', [
 			'initPermissionMap','addTab',
 		]),
+		// 根据权限id判断菜单是否显示
+		isShowMenuByPermission(permissionId) {
+			// 超级管理员角色直接显示
+			if(this.managerInfo.roleIds.has(1)) {
+				return true;
+			}
+			return this.managerInfo.permissionIds.has(permissionId);
+		},
 		open_updateManagerDialog() {
 			this.updateManagerDialog = true;
 		},

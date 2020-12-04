@@ -127,6 +127,8 @@
 						falsefun: (res) => {
 							if(res.status == -2) {
 								this.loadVerifyImg(this.loginDTO.username);
+							} else {
+								this.openVerifyModal = false;
 							}
 						},
 					});
