@@ -2,6 +2,7 @@ import Axios from 'axios'
 import qs from 'qs'
 import Router from '@/router/index'
 import { Message } from 'element-ui'
+import { mapMutations } from 'vuex'
 
 Axios.defaults.baseURL = 'http://huodong6.dev';
 
@@ -78,7 +79,11 @@ instance.ajax = (path, option) => {
 		if(res.status == 0) {
 			truefun && truefun(res.data);
 			if(method != 'get' && use_alert) {
-				Message.success('操作成功');
+				if(res.msg == null) {
+					Message.success('操作成功');
+				} else {
+					Message.success(res.msg);
+				}
 			}
 		} else {
 			Message.error(res.msg);

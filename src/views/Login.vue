@@ -93,7 +93,7 @@
 				loginDTO: {
 					username: 'admin',
 					password: 'q12345678',
-					verifyXValue: 0,
+					verifyXvalue: 0,
 				},
 				loginRules: {
 					username: [
@@ -108,13 +108,13 @@
 			};
 		},
 		methods: {
-			login(verifyXValue) {
+			login(verifyXvalue) {
 				this.$refs['loginForm'].validate(valid => {
 					if(!valid) {
 						Message.error('登录信息不完整');
 						return;
 					}
-					this.loginDTO.verifyXValue = verifyXValue;
+					this.loginDTO.verifyXvalue = verifyXvalue;
 					http.ajax('/service-auth/login/manager', {
 						method: 'post',
 						data: this.loginDTO,
