@@ -1,8 +1,14 @@
 export default {
 	arrange(treeRows) {
 		let permissionId2entity = {};
+		//记录permissionId顺序
+		let permissionIds = [];
 		treeRows.forEach((row) => {
 			permissionId2entity[row.permissionId] = row;
+			permissionIds.push(row.permissionId);
+			if(row.isHidden) {
+				return;
+			}
 			if(row.parentId != 0) {
 				if(permissionId2entity[row.parentId].children == undefined) {
 					permissionId2entity[row.parentId].children = [];
@@ -11,11 +17,11 @@ export default {
 			}
 		});
 		let newList = [];
-		for(let permissionId in permissionId2entity) {
+		permissionIds.forEach(permissionId => {
 			if(permissionId2entity[permissionId].parentId == 0) {
 				newList.push(permissionId2entity[permissionId]);
 			}
-		}
+		});
 		return newList;
 	},
 	

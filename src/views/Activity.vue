@@ -1,5 +1,6 @@
 <style>
-
+.button-group { display: flex; flex-flow: wrap; justify-content: center; }
+.button-group .btn { margin: 2px; }
 </style>
 
 
@@ -31,7 +32,9 @@
 		<el-table :data="queryResult.rows" stripe="" border="" header-cell-class-name="bg-gray">
 			<el-table-column prop="activityId" label="activityId" align="center" width="80"></el-table-column>
 			<el-table-column prop="name" label="活动名" align="center"></el-table-column>
-			<el-table-column prop="type" label="活动类型" align="center"></el-table-column>
+			<el-table-column label="活动类型" align="center">
+				<template slot-scope="scope">{{ scope.row.type.join(',') }}</template>
+			</el-table-column>
 			<el-table-column prop="allowType" label="限定参与方式" align="center"></el-table-column>
 			<el-table-column label="绑定公众号" align="center">
 				<template slot-scope="scope">
@@ -43,11 +46,29 @@
 			<el-table-column prop="endTime" label="结束时间" align="center"></el-table-column>
 			<el-table-column label="开展状态" :formatter="formatStatus" align="center"></el-table-column>
 			<el-table-column prop="addTime" label="创建时间" align="center"></el-table-column>
-			<el-table-column align="center" label="操作" width="200">
-				<template slot-scope="scope">
-					<el-button size="mini" type="warning" @click="openDialog(scope.row.activityId)" icon="el-icon-edit-outline">修改</el-button>
-					<el-button size="mini" type="danger" @click="deleteData(scope.row.activityId)" icon="el-icon-delete">删除</el-button>
-				</template>
+			<el-table-column align="center" label="操作" width="250">
+				<div slot-scope="scope" class="button-group">
+					<el-button size="mini" type="warning" @click="openDialog(scope.row.activityId)" class="btn" icon="el-icon-edit-outline">修改</el-button>
+					<el-button size="mini" type="danger" @click="deleteData(scope.row.activityId)" class="btn" icon="el-icon-delete">删除</el-button>
+					<template v-for="type in scope.row.type">
+						<el-button v-if="type == '问卷'"
+							size="mini" type="info"
+							@click="openWindow(scope.row.activityId, 1, scope.row.name)" class="btn"
+							icon="el-icon-chat-line-round">问卷模块</el-button>
+						<el-button v-if="type == '抽奖'"
+							size="mini" type="info"
+							@click="openWindow(scope.row.activityId, 2, scope.row.name)" class="btn"
+							icon="el-icon-trophy">抽奖模块</el-button>
+						<el-button v-if="type == '登记'"
+							size="mini" type="info"
+							@click="openWindow(scope.row.activityId, 3, scope.row.name)" class="btn"
+							icon="el-icon-phone">登记模块</el-button>
+						<el-button v-if="type == '投票'"
+							size="mini" type="info"
+							@click="openWindow(scope.row.activityId, 4, scope.row.name)" class="btn"
+							icon="el-icon-thumb">投票模块</el-button>
+					</template>
+				</div>
 			</el-table-column>
 		</el-table>
 
@@ -62,11 +83,11 @@
 		</el-pagination>
 
 		<el-dialog title="编辑活动信息"
-			:visible.sync="updateDialog"
+			:visible.sync="editDialog"
 			:close-on-click-modal="false"
-			@close="resetForm('updateForm')"
+			@close="resetForm('editForm')"
 			width="30%">
-			<el-form :model="activityDTO" :rules="updateRules" ref="updateForm" label-width="auto">
+			<el-form :model="activityDTO" :rules="editRules" ref="editForm" label-width="auto">
 				<el-form-item prop="activityId" v-show="false">
 					<el-input v-model="activityDTO.activityId"></el-input>
 				</el-form-item>
@@ -115,8 +136,13 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				
-				
+				<el-form-item label="限定参与者名单" prop="allowTypeDetail">
+					<el-input type="textarea"
+						v-model="activityDTO.allowTypeDetail"
+						rows="5"
+						placeholder="当启用【限定参与方式】时有效，为空则不限定参与者。【限定参与方式】为手机则填手机号，为微信则填微信号，填写多个时以英文逗号分隔。">
+					</el-input>
+				</el-form-item>
 			</el-form>
 			<span slot="footer">
 				<el-button type="success" @click="saveData()">保存</el-button>
@@ -129,52 +155,58 @@
 
 <script>
 import { Message } from "element-ui";
+import { mapMutations, mapState } from 'vuex';
 import http from '@/components/Http';
 
 export default {
 	data() {
-	  return {
-	  	wxMap: {},
-		queryParams: {
-			name: '',
-			appId: '',
-			page: 1,
-			limit: 10,
-		},
-		queryResult: {
-			rows: [],
-			total: 0,
-		},
-	  	activityDTO: {
-	  		activityId: null,
-	  		name: '',
-	  		type: [],
-	  		isTest: true,
-	  		startTime: '',
-	  		endTIme: '',
-	  		allowType: '无',
-	  		wxId:0,
-	  	},
-	  	updateRules: {
-	  		name: [
-				{required: true, message: "请输入活动名"},
-				{min: 2, max: 50, message: "长度在2-50之间"},
-			],
-			type: [
-				{required: true, message: "请选择类型"},
-			],
-			startTime: [
-				{required: true, message: "请选择开始时间"},
-			],
-			endTime: [
-				{required: true, message: "请选择结束时间"},
-			],
-			allowType: [
-				{required: true, message: "请选择限定参与方式"},
-			],
-	  	},
-	  	updateDialog: false,
-	  }
+		return {
+			wxMap: {},
+			queryParams: {
+				name: '',
+				appId: '',
+				page: 1,
+				limit: 10,
+			},
+			queryResult: {
+				rows: [],
+				total: 0,
+			},
+			activityDTO: {
+				activityId: null,
+				name: '',
+				type: [],
+				isTest: true,
+				startTime: '',
+				endTime: '',
+				allowType: '无',
+				wxId: 0,
+			},
+			editRules: {
+				name: [
+					{required: true, message: '请输入活动名'},
+					{min: 2, max: 50, message: '长度在2-50之间'},
+				],
+				type: [
+					{required: true, message: '请选择类型'},
+				],
+				startTime: [
+					{required: true, message: '请选择开始时间'},
+				],
+				endTime: [
+					{required: true, message: '请选择结束时间'},
+				],
+				allowType: [
+					{required: true, message: '请选择限定参与方式'}
+				],
+			},
+			editDialog: false,
+		}
+	},
+	computed: {
+		...mapState('navTabs', [
+			'path2permissionId',
+		]),
 	},
 	mounted() {
 		this.search(true);
@@ -214,15 +246,14 @@ export default {
 			if(activityId != undefined) {
 				http.ajax('/service-activity/activity/' + activityId, {
 					truefun: resData => {
-						resData.type = resData.type.split(',');
 						this.activityDTO = resData;
 					},
 				});
 			}
-			this.updateDialog = true;
+			this.editDialog = true;
 		},
 		saveData() {
-			this.$refs['updateForm'].validate(valid => {
+			this.$refs['editForm'].validate(valid => {
 				if(!valid) {
 					Message.error('表单信息错误');
 					return;
@@ -231,7 +262,7 @@ export default {
 					method: this.activityDTO.activityId ? 'put' : 'post',
 					data: this.activityDTO,
 					truefun: resData => {
-						this.updateDialog = false;
+						this.editDialog = false;
 						this.search(true);
 					},
 				});
@@ -248,6 +279,22 @@ export default {
 				});
 			})
 			.catch(() => {});
+		},
+		...mapMutations('navTabs', [
+			'addTab',
+		]),
+		...mapMutations('activityQuestion', [
+			'setActivityId','setHeaderTitle',
+		]),
+		openWindow(activityId, type, name) {
+			this.setActivityId(activityId);
+			this.setHeaderTitle(name);
+			console.log(this.activityDTO)
+			switch(type) {
+				case 1:
+					this.addTab(this.path2permissionId['/ActivityQuestion']);
+					break;
+			}
 		},
 		formatBoolean(row, column, value) {
 			return value ? '是' : '否';
