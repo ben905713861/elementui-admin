@@ -43,22 +43,22 @@
 					<el-input v-model="questionDTO.question"></el-input>
 				</el-form-item>
 				<el-form-item label="类型" prop="type">
-					<el-select v-model="questionDTO.type" placeholder="题目类型">
+					<el-select v-model="questionDTO.type" placeholder="题目类型" @change="questionTypeChange">
 						<el-option label="单选题" key="单选题" value="单选题"></el-option>
 						<el-option label="多选题" key="多选题" value="多选题"></el-option>
 						<el-option label="问答题" key="问答题" value="问答题"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="最大多选数" prop="maxAnswer">
+				<el-form-item v-if="showEditDialogSelectorConfig" label="最大多选数" prop="maxAnswer">
 					<el-input-number v-model="questionDTO.maxAnswer" :min="0" :max="10" placeholder="仅多选题有效,0代表不限制"></el-input-number>
 				</el-form-item>
 				<el-form-item label="参考答案" prop="referenceAnswer">
 					<el-input v-model="questionDTO.referenceAnswer" placeholder="选填"></el-input>
 				</el-form-item>
-				<el-form-item label="选项配置">
+				<el-form-item label="选项配置" v-if="showEditDialogSelectorConfig">
 					<el-button size="mini" type="success" @click="addOption()">添加选项</el-button>
 				</el-form-item>
-				<el-form-item v-for="(option, index) in questionDTO.optionList"
+				<el-form-item v-if="showEditDialogSelectorConfig" v-for="(option, index) in questionDTO.optionList"
 					:label="optionKeys[index]"
 					:prop="'optionList.' + index + '.option'"
 					:rules="editRules.optionList_option"
@@ -121,6 +121,7 @@ export default {
 				],
 			},
 			editDialog: false,
+			showEditDialogSelectorConfig: true,
 			optionKeys: ['A','B','C','D','E','F','G','H','I','J'],
 			saveDisabled: false,
 		}
@@ -148,9 +149,9 @@ export default {
 		resetForm(formName) {
 			this.$refs[formName].resetFields();
 		},
-		openDialog(referenceAnswer) {
-			if(referenceAnswer != undefined) {
-				http.ajax('/service-activity/question/' + referenceAnswer, {
+		openDialog(questionId) {
+			if(questionId != undefined) {
+				http.ajax('/service-activity/question/' + questionId, {
 					truefun: resData => {
 						this.questionDTO = resData;
 					},
@@ -165,6 +166,12 @@ export default {
 				}];
 			}
 			this.editDialog = true;
+		},
+		questionTypeChange(value) {
+			this.showEditDialogSelectorConfig = value != '问答题';
+			if(value == '问答题') {
+				this.questionDTO.optionList = [];
+			}
 		},
 		addOption() {
 			this.questionDTO.optionList.push({
@@ -224,21 +231,12 @@ export default {
 			.catch(() => {});
 		},
 		...mapMutations('navTabs', [
-			'addTab','closeTab',
+			'closeTab',
 		]),
-//		...mapMutations('activityQuestion', [
-//			'setQuestionModuleId','setActivityId','setHeaderTitle',
-//		]),
-//		openWindow(questionModuleId, type, title) {
-//			this.setQuestionModuleId(questionModuleId);
-//			this.setActivityId(this.activityId);
-//			this.setHeaderTitle(title);
-//			this.addTab(this.path2permissionId[type]);
-//		},
 		goBack() {
 			let lastTabPermissionId = this.path2permissionId['/ActivityQuestionModule'];
 			let thisTabPermissionId = this.path2permissionId['/ActivityQuestion'];
-			this.closeTab(thisTabPermissionId, lastTabPermissionId);
+			this.closeTab([thisTabPermissionId, lastTabPermissionId]);
 		},
 	},
 }

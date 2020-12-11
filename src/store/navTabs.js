@@ -34,28 +34,42 @@ const mutations = {
 		}
 		state.activeTabName = index;
 	},
-	closeTab(state, index, lastTabPermissionId) {
+	closeTab(state, param) {
+		let index;
+		let lastTabPermissionId;
+		if(param instanceof Array) {
+			index = param[0];
+			lastTabPermissionId = param[1].toString();
+		} else {
+			index = param;
+		}
 		delete state.tabMap[index];
 		//删除选项卡后，归位
 		let keys = Object.keys(state.tabMap);
 		if(keys.length == 0) {
 			state.activeTabName = 'Home';
-		} else {
-			//有指定上一个页面的，删除选项卡后跳回
-			if(lastTabPermissionId != null) {
-				state.activeTabName = lastTabPermissionId.toString();
-			} else {
-				//待关闭的选项卡是当前显示的选项卡，寻找上一个
-				if(index == state.activeTabName) {
-					state.activeTabName = keys[keys.length - 1];
-				} else {
-					//刷新一下，不然顶tab不会变化
-					let temp = state.activeTabName;
-					state.activeTabName = 'Home';
-					state.activeTabName = temp;
-				}
-			}
+			return;
 		}
+		//有指定上一个页面的，删除选项卡后跳回
+		if(lastTabPermissionId != null) {
+			if(state.tabMap.hasOwnProperty(lastTabPermissionId)) {
+				state.activeTabName = lastTabPermissionId;
+			} else {
+				//指定的上一个页面已关闭，则寻找倒数第一个选项卡进行跳转
+				state.activeTabName = keys[keys.length - 1];
+			}
+			return;
+		}
+		//待关闭的选项卡是当前显示的选项卡，寻找上一个
+		if(index == state.activeTabName) {
+			state.activeTabName = keys[keys.length - 1];
+		} else {
+			//刷新一下，不然顶tab不会变化
+			let temp = state.activeTabName;
+			state.activeTabName = 'Home';
+			state.activeTabName = temp;
+		}
+		
 	},
 }
 

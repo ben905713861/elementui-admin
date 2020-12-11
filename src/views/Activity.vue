@@ -24,7 +24,7 @@
 			</el-form-item>
 
 			<el-form-item>
-				<el-button type="primary" native-type="submit" @click="search(true)" icon="el-icon-search">搜索</el-button>
+				<el-button type="primary" native-type="submit" @click="search(true)" icon="el-icon-search">搜索/刷新</el-button>
 				<el-button @click="resetForm('searchForm')" icon="el-icon-circle-close">重置</el-button>
 			</el-form-item>
 		</el-form>
@@ -289,7 +289,6 @@ export default {
 		openWindow(activityId, type, name) {
 			this.setActivityId(activityId);
 			this.setHeaderTitle(name);
-			console.log(this.activityDTO)
 			this.addTab(this.path2permissionId[type]);
 		},
 		formatBoolean(row, column, value) {

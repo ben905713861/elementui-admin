@@ -12,7 +12,7 @@
 				<el-button type="success" @click="openDialog()" icon="el-icon-plus">新增</el-button>
 			</el-form-item>
 			<el-form-item>
-				<el-button type="primary" native-type="submit" @click="search()" icon="el-icon-search">搜索</el-button>
+				<el-button type="primary" native-type="submit" @click="search()" icon="el-icon-search">刷新</el-button>
 			</el-form-item>
 		</el-form>
 
