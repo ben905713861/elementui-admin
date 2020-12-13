@@ -2,9 +2,8 @@ import Axios from 'axios'
 import qs from 'qs'
 import Router from '@/router/index'
 import { Message } from 'element-ui'
-import { mapMutations } from 'vuex'
 
-Axios.defaults.baseURL = 'http://huodong6.dev';
+Axios.defaults.baseURL = process.env.API_ROOT;
 
 let instance = Axios.create({
 	headers: {
@@ -93,6 +92,14 @@ instance.ajax = (path, option) => {
 	}).catch(res => {
 		errfun && errfun(res);
 	});
+}
+
+instance.download = (path) => {
+	let accessToken = window.sessionStorage.getItem('accessToken');
+	if(accessToken) {
+		let url = Axios.defaults.baseURL + path + "?access_token=" + accessToken;
+		window.open(url);
+	}
 }
 
 instance.loginSuccess = accessToken => {

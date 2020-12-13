@@ -169,7 +169,7 @@ export default {
 			this.editDialog = true;
 		},
 		exportExcel() {
-			window.open('http://huodong6.dev/service-activity/questionResult/exportExcel/' + this.questionModuleId + '?access_token' + window.sessionStorage.getItem('accessToken'));
+			http.download('/service-activity/questionResult/exportExcel/' + this.questionModuleId);
 		},
 		...mapMutations('navTabs', [
 			'closeTab',
