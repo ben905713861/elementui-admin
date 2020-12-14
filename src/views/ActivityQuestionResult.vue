@@ -21,6 +21,7 @@
 				<el-button type="primary" native-type="submit" @click="search()" icon="el-icon-search">搜索/刷新</el-button>
 				<el-button @click="resetForm('searchForm')" icon="el-icon-circle-close">重置</el-button>
 				<el-button type="primary" @click="exportExcel()" icon="el-icon-download">导出全部</el-button>
+				<el-button type="danger" @click="removeAll()" icon="el-icon-delete">删除全部</el-button>
 			</el-form-item>
 		</el-form>
 		
@@ -170,6 +171,18 @@ export default {
 		},
 		exportExcel() {
 			http.download('/service-activity/questionResult/exportExcel/' + this.questionModuleId);
+		},
+		removeAll() {
+			this.$confirm('确定删除？', '操作警告')
+			.then(() => {
+				http.ajax('/service-activity/questionResult/all/' + this.questionModuleId, {
+					method: 'delete',
+					truefun: res => {
+						this.search();
+					},
+				});
+			})
+			.catch(() => {});
 		},
 		...mapMutations('navTabs', [
 			'closeTab',

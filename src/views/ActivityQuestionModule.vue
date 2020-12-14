@@ -184,7 +184,7 @@ export default {
 		goBack() {
 			let lastTabPermissionId = this.path2permissionId['/Activity'];
 			let thisTabPermissionId = this.path2permissionId['/ActivityQuestionModule'];
-			this.closeTab(thisTabPermissionId, lastTabPermissionId);
+			this.closeTab([thisTabPermissionId, lastTabPermissionId]);
 		},
 	},
 }

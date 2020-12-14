@@ -57,15 +57,15 @@
 							icon="el-icon-chat-line-round">问卷模块</el-button>
 						<el-button v-if="type == '抽奖'"
 							size="mini" type="info"
-							@click="openWindow(scope.row.activityId, '/ActivityRaffleList', scope.row.name)" class="btn"
+							@click="openWindow(scope.row.activityId, '/ActivityRaffle', scope.row.name)" class="btn"
 							icon="el-icon-trophy">抽奖模块</el-button>
 						<el-button v-if="type == '登记'"
 							size="mini" type="info"
-							@click="openWindow(scope.row.activityId, '/ActivityRecordList', scope.row.name)" class="btn"
+							@click="openWindow(scope.row.activityId, '/ActivityRecord', scope.row.name)" class="btn"
 							icon="el-icon-phone">登记模块</el-button>
 						<el-button v-if="type == '投票'"
 							size="mini" type="info"
-							@click="openWindow(scope.row.activityId, '/ActivityVoteList', scope.row.name)" class="btn"
+							@click="openWindow(scope.row.activityId, '/ActivityVote', scope.row.name)" class="btn"
 							icon="el-icon-thumb">投票模块</el-button>
 					</template>
 				</div>
@@ -283,13 +283,19 @@ export default {
 		...mapMutations('navTabs', [
 			'addTab',
 		]),
-		...mapMutations('activityQuestionModule', [
-			'setActivityId','setHeaderTitle',
-		]),
-		openWindow(activityId, type, name) {
-			this.setActivityId(activityId);
-			this.setHeaderTitle(name);
-			this.addTab(this.path2permissionId[type]);
+		...mapMutations('activityQuestionModule', {
+			activityQuestionModule_setActivityId: 'setActivityId',
+			activityQuestionModule_setHeaderTitle: 'setHeaderTitle',
+		}),
+		...mapMutations('activityRaffle', {
+			activityRaffle_setActivityId: 'setActivityId',
+			activityRaffle_setHeaderTitle: 'setHeaderTitle',
+		}),
+		openWindow(activityId, path, name) {
+			let type = path[1].toLowerCase() + path.substr(2);
+			this[type + '_setActivityId'](activityId);
+			this[type + '_setHeaderTitle'](name);
+			this.addTab(this.path2permissionId[path]);
 		},
 		formatBoolean(row, column, value) {
 			return value ? '是' : '否';
