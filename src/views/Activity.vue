@@ -30,7 +30,7 @@
 		</el-form>
 
 		<el-table :data="queryResult.rows" stripe="" border="" header-cell-class-name="bg-gray">
-			<el-table-column prop="activityId" label="activityId" align="center" width="80"></el-table-column>
+			<el-table-column prop="activityId" label="activityId" align="center" width="90"></el-table-column>
 			<el-table-column prop="name" label="活动名" align="center"></el-table-column>
 			<el-table-column label="活动类型" align="center">
 				<template slot-scope="scope">{{ scope.row.type.join(',') }}</template>
@@ -41,11 +41,10 @@
 					<template v-if="scope.row.wxDTO">{{ scope.row.wxDTO.name }}</template>
 				</template>
 			</el-table-column>
-			<el-table-column prop="isTest" label="是否为测试模式" :formatter="formatBoolean" align="center"></el-table-column>
+			<el-table-column prop="isTest" label="测试模式" :formatter="formatBoolean" align="center"></el-table-column>
 			<el-table-column prop="startTime" label="开始时间" align="center"></el-table-column>
 			<el-table-column prop="endTime" label="结束时间" align="center"></el-table-column>
 			<el-table-column label="开展状态" :formatter="formatStatus" align="center"></el-table-column>
-			<el-table-column prop="addTime" label="创建时间" align="center"></el-table-column>
 			<el-table-column align="center" label="操作" width="250">
 				<div slot-scope="scope" class="button-group">
 					<el-button size="mini" type="warning" @click="openDialog(scope.row.activityId)" class="btn" icon="el-icon-edit-outline">修改</el-button>
@@ -290,6 +289,10 @@ export default {
 		...mapMutations('activityRaffle', {
 			activityRaffle_setActivityId: 'setActivityId',
 			activityRaffle_setHeaderTitle: 'setHeaderTitle',
+		}),
+		...mapMutations('activityRecord', {
+			activityRecord_setActivityId: 'setActivityId',
+			activityRecord_setHeaderTitle: 'setHeaderTitle',
 		}),
 		openWindow(activityId, path, name) {
 			let type = path[1].toLowerCase() + path.substr(2);

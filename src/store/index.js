@@ -7,6 +7,7 @@ import activityQuestionResult from './activityQuestionResult'
 import activityRaffle from './activityRaffle'
 import activityRaffleOption from './activityRaffleOption'
 import activityRaffleResult from './activityRaffleResult'
+import activityRecord from './activityRecord'
 
 Vue.use(Vuex);
 
@@ -19,5 +20,6 @@ export default new Vuex.Store({
         activityRaffle: activityRaffle,
         activityRaffleOption: activityRaffleOption,
         activityRaffleResult: activityRaffleResult,
+        activityRecord: activityRecord,
     }
 });
