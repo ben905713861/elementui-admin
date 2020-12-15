@@ -150,6 +150,7 @@ export default {
 					Message.error('表单信息错误');
 					return;
 				}
+				this.raffleDTO.activityId = this.activityId;
 				http.ajax('/service-activity/raffle', {
 					method: this.raffleDTO.raffleId ? 'put' : 'post',
 					data: this.raffleDTO,

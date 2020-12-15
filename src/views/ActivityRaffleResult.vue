@@ -8,9 +8,6 @@
 		<hr class="hr" color="#F2F6FC">
 		
 		<el-form :model="queryParams" ref="searchForm" label-width="auto" :inline="true" class="search-form" @submit.native.prevent="">
-			<el-form-item>
-				<el-button type="success" @click="openDialog()" icon="el-icon-plus">新增</el-button>
-			</el-form-item>
 			<el-form-item prop="openId">
 				<el-input v-model="queryParams.openId" placeholder="openId"></el-input>
 			</el-form-item>
@@ -27,9 +24,10 @@
 		
 		<el-table :data="queryResult.rows" stripe="" border="" header-cell-class-name="bg-gray">
 			<el-table-column prop="raffleResultId" label="raffleResultId" align="center" width="200px"></el-table-column>
-			<el-table-column prop="openId" label="openId" align="center" width="200px"></el-table-column>
+			<el-table-column prop="openId" label="openId" align="center" width="280px"></el-table-column>
 			<el-table-column prop="phone" label="手机" align="center" width="150px"></el-table-column>
 			<el-table-column prop="ip" label="IP" align="center" width="150px"></el-table-column>
+			<el-table-column prop="createTime" label="抽奖时间" align="center" width="150px"></el-table-column>
 			<el-table-column prop="result" label="中奖情况" align="center"></el-table-column>
 		</el-table>
 		

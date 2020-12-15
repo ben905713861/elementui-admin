@@ -1,0 +1,193 @@
+<style>
+
+</style>
+
+<template>
+	<div>
+		<el-page-header @back="goBack" :content="headerTitle + ' - 投票结果'"></el-page-header>
+		<hr class="hr" color="#F2F6FC">
+		
+		<el-form :model="queryParams" ref="searchForm" label-width="auto" :inline="true" class="search-form" @submit.native.prevent="">
+			<el-form-item prop="openId">
+				<el-input v-model="queryParams.openId" placeholder="openId"></el-input>
+			</el-form-item>
+			<el-form-item prop="phone">
+				<el-input v-model="queryParams.phone" placeholder="手机"></el-input>
+			</el-form-item>
+			<el-form-item>
+				<el-button type="primary" native-type="submit" @click="search()" icon="el-icon-search">搜索/刷新</el-button>
+				<el-button @click="resetForm('searchForm')" icon="el-icon-circle-close">重置</el-button>
+				<el-button type="primary" @click="exportExcel()" icon="el-icon-download">导出全部</el-button>
+				<el-button type="danger" @click="removeAll()" icon="el-icon-delete">删除全部</el-button>
+			</el-form-item>
+		</el-form>
+		
+		<el-table :data="queryResult.rows" stripe="" border="" header-cell-class-name="bg-gray">
+			<el-table-column prop="voteResultId" label="voteResultId" align="center" width="200px"></el-table-column>
+			<el-table-column prop="openId" label="openId" align="center" width="280px"></el-table-column>
+			<el-table-column prop="phone" label="手机" align="center" width="150px"></el-table-column>
+			<el-table-column prop="ip" label="IP" align="center" width="150px"></el-table-column>
+			<el-table-column prop="createTime" label="投票时间" align="center" width="160px"></el-table-column>
+			<el-table-column label="投票情况">
+				<template slot-scope="scope">
+					<template v-for="optionId in scope.row.result">
+						{{ voteId2vote[optionId].name }} &nbsp;
+					</template>
+				</template>
+			</el-table-column>
+		</el-table>
+		
+		<el-pagination class="pagination"
+			background=""
+			layout="total,prev,pager,next,sizes"
+			:total="queryResult.total"
+			:current-page="queryParams.page"
+			:page-size="queryParams.limit"
+			@size-change="sizeChange"
+			@current-change="currentChange">
+		</el-pagination>
+		
+		<el-dialog title="导出进度"
+			:visible.sync="showDialog"
+			:close-on-click-modal="false"
+			@close="clearDialog"
+			width="30%">
+			<p>{{ exportInfo.msg }}</p>
+			<el-progress :text-inside="true" :stroke-width="26" :percentage="exportInfo.percentage"></el-progress>
+			<span v-if="exportInfo.showDownloadBtn" slot="footer">
+				<el-button type="success" @click="downloadExcel()">下载</el-button>
+			</span>
+		</el-dialog>
+	</div>
+</template>
+
+<script>
+import { Message } from "element-ui";
+import { mapMutations, mapState } from 'vuex';
+import http from '@/components/Http';
+
+export default {
+	data() {
+		return {
+			queryParams: {
+				voteId: 0,
+				openId: '',
+				phone: '',
+				page: 1,
+				limit: 10,
+			},
+			queryResult: {
+				rows: [],
+				total: 0,
+			},
+			voteId2vote: {},
+			showDialog: false,
+			exportInfo: {
+				percentage: 0,
+				msg: '',
+				downloadPath: null,
+				showDownloadBtn: false,
+			},
+		}
+	},
+	mounted() {
+		http.ajax('/service-activity/voteResult/init/' + this.voteId, {
+			truefun: resData => {
+				resData.forEach(vote => {
+					this.voteId2vote[vote.optionId] = vote;
+					this.search();
+				});
+			},
+		});
+	},
+	computed: {
+		...mapState('activityVoteResult', [
+			'voteId','activityId','headerTitle',
+		]),
+		...mapState('navTabs', [
+			'path2permissionId',
+		]),
+	},
+	methods: {
+		search() {
+			this.queryParams.voteId = this.voteId;
+			http.ajax('/service-activity/voteResult', {
+				data: this.queryParams,
+				truefun: res => {
+					this.queryResult = res;
+				},
+			});
+		},
+		resetForm(formName) {
+			this.$refs[formName].resetFields();
+		},
+		sizeChange(limit) {
+			this.queryParams.limit = limit;
+			this.search();
+		},
+		currentChange(page) {
+			this.queryParams.page = page;
+			this.search();
+		},
+		exportExcel() {
+			//ws请求
+			let socket = http.socket('/service-activity/voteResult/exportExcel/' + this.voteId);
+			socket.onopen = () => {
+				this.showDialog = true;
+			}
+			socket.onmessage = event => {
+				var res = JSON.parse(event.data);
+				if(res.status == 0) {
+					this.exportInfo.msg = res.msg;
+				} else if(res.status == 1) {
+					this.exportInfo.percentage = Number(res.data);
+				} else if(res.status == 2) {
+					this.exportInfo.msg = res.msg;
+					this.exportInfo.downloadPath = res.data;
+					console.log(res.data)
+					this.exportInfo.showDownloadBtn = true;
+				}
+			}
+			socket.onclose = () => {
+				this.exportInfo.showDownloadBtn = true;
+			}
+			socket.onerror = err => {
+				console.error(err);
+			}
+		},
+		downloadExcel() {
+			console.log(this.exportInfo.downloadPath)
+			http.download('/service-activity/voteResult/export', {
+				voteId: this.voteId,
+				path: this.exportInfo.downloadPath,
+			});
+		},
+		clearDialog() {
+			this.exportInfo.percentage = 0;
+			this.exportInfo.msg = '';
+			this.exportInfo.showDownloadBtn = false;
+			this.exportInfo.downloadPath = null;
+		},
+		removeAll() {
+			this.$confirm('确定删除？', '操作警告')
+			.then(() => {
+				http.ajax('/service-activity/voteResult/all/' + this.voteId, {
+					method: 'delete',
+					truefun: res => {
+						this.search();
+					},
+				});
+			})
+			.catch(() => {});
+		},
+		...mapMutations('navTabs', [
+			'closeTab',
+		]),
+		goBack() {
+			let lastTabPermissionId = this.path2permissionId['/ActivityVote'];
+			let thisTabPermissionId = this.path2permissionId['/ActivityVoteResult'];
+			this.closeTab([thisTabPermissionId, lastTabPermissionId]);
+		},
+	},
+}
+</script>

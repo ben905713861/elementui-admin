@@ -94,11 +94,28 @@ instance.ajax = (path, option) => {
 	});
 }
 
-instance.download = (path) => {
+instance.download = (path, params) => {
+	if(params == undefined) {
+		params = {};
+	}
 	let accessToken = window.sessionStorage.getItem('accessToken');
 	if(accessToken) {
-		let url = Axios.defaults.baseURL + path + "?access_token=" + accessToken;
-		window.open(url);
+		params['access_token'] = accessToken;
+	}
+	let url = Axios.defaults.baseURL + path + '?';
+	for(let key in params) {
+		url += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
+	}
+	url = url.substr(0, url.length-1);
+	window.open(url);
+}
+
+instance.socket = path => {
+	let accessToken = window.sessionStorage.getItem('accessToken');
+	if(accessToken) {
+		let baseUrl = Axios.defaults.baseURL;
+		baseUrl = 'ws' + baseUrl.substr(4);
+		return new WebSocket(baseUrl + path + '?access_token=' + accessToken);
 	}
 }
 

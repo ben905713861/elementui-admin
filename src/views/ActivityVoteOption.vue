@@ -26,7 +26,7 @@
 
 <template>
 	<div>
-		<el-page-header @back="goBack" :content="headerTitle + ' - 抽奖项配置'"></el-page-header>
+		<el-page-header @back="goBack" :content="headerTitle + ' - 投票项配置'"></el-page-header>
 		<hr class="hr" color="#F2F6FC">
 		
 		<el-form :model="queryParams" ref="searchForm" label-width="auto" :inline="true" class="search-form" @submit.native.prevent="">
@@ -41,21 +41,13 @@
 		<el-table :data="queryResult.rows" stripe="" border="" header-cell-class-name="bg-gray">
 			<el-table-column type="index" :index="1" align="center"></el-table-column>
 			<el-table-column prop="optionId" label="optionId" align="center"></el-table-column>
-			<el-table-column prop="name" label="奖品名" align="center"></el-table-column>
+			<el-table-column prop="name" label="投票项名" align="center"></el-table-column>
 			<el-table-column label="缩略图" align="center">
 				<template slot-scope="scope">
 					<img v-if="scope.row.thumbUrl" :src="scope.row.thumbUrl" class="row-thumb" />
 				</template>
 			</el-table-column>
-			<el-table-column prop="noAward" label="是否为不中奖项" :formatter="formatBoolean" align="center"></el-table-column>
-			<el-table-column prop="rate" label="权重" align="center"></el-table-column>
-			<el-table-column label="概率" align="center">
-				<template slot-scope="scope" v-if="queryResult.totalRate != 0">
-					{{ (scope.row.rate / queryResult.totalRate*100).toFixed(2) }}%
-				</template>
-			</el-table-column>
-			<el-table-column prop="dayLimit" label="每日限制发奖数" align="center"></el-table-column>
-			<el-table-column prop="totalLimit" label="发奖限制总数" align="center"></el-table-column>
+			<el-table-column prop="link" label="超链接"></el-table-column>
 			<el-table-column align="center" label="操作" width="200">
 				<div slot-scope="scope" class="button-group">
 					<el-button size="mini" type="warning" @click="openDialog(scope.row.optionId)" icon="el-icon-edit-outline">修改</el-button>
@@ -64,42 +56,33 @@
 			</el-table-column>
 		</el-table>
 		
-		<el-dialog title="编辑奖品"
+		<el-dialog title="编辑投票项"
 			:visible.sync="editDialog"
 			:close-on-click-modal="false"
 			@close="resetForm('editForm')"
 			width="30%">
-			<el-form :model="raffleOptionDTO" :rules="editRules" ref="editForm" label-width="auto">
+			<el-form :model="voteOptionDTO" :rules="editRules" ref="editForm" label-width="auto">
 				<el-form-item prop="optionId" v-show="false">
-					<el-input v-model="raffleOptionDTO.optionId"></el-input>
+					<el-input v-model="voteOptionDTO.optionId"></el-input>
 				</el-form-item>
-				<el-form-item label="奖品名" prop="name">
-					<el-input v-model="raffleOptionDTO.name"></el-input>
+				<el-form-item label="投票项名" prop="name">
+					<el-input v-model="voteOptionDTO.name"></el-input>
 				</el-form-item>
-				<el-form-item label="是否为不中奖项" prop="noAward">
-					<el-select v-model="raffleOptionDTO.noAward" placeholder="是否为不中奖项">
-						<el-option label="是" :key="true" :value="true"></el-option>
-						<el-option label="否" :key="false" :value="false"></el-option>
-					</el-select>
+				<el-form-item label="描述" prop="description">
+					<el-input type="textarea" v-model="voteOptionDTO.description"></el-input>
 				</el-form-item>
 				<el-form-item label="缩略图" prop="thumbPath">
-					<el-input v-show="false" v-model="raffleOptionDTO.thumbPath"></el-input>
+					<el-input v-show="false" v-model="voteOptionDTO.thumbPath"></el-input>
 					<el-upload action=""
 						:http-request="uploadThumb"
 						:show-file-list="false"
 						class="avatar-uploader">
-						<img class="thumb-img" v-if="raffleOptionDTO.thumbUrl" :src="raffleOptionDTO.thumbUrl">
+						<img class="thumb-img" v-if="voteOptionDTO.thumbUrl" :src="voteOptionDTO.thumbUrl">
 						<i v-else class="el-icon-plus avatar-uploader-icon"></i>
 					</el-upload>
 				</el-form-item>
-				<el-form-item label="权重" prop="rate">
-					<el-input-number v-model="raffleOptionDTO.rate" :min="0" :max="10000"></el-input-number>
-				</el-form-item>
-				<el-form-item label="每日限制发奖数" prop="dayLimit">
-					<el-input-number v-model="raffleOptionDTO.dayLimit" :min="0" :max="10000" placeholder="0代表不限制"></el-input-number>
-				</el-form-item>
-				<el-form-item label="发奖限制总数" prop="totalLimit">
-					<el-input-number v-model="raffleOptionDTO.totalLimit" :min="0" :max="10000" placeholder="0代表不限制"></el-input-number>
+				<el-form-item label="超链接" prop="link">
+					<el-input v-model="voteOptionDTO.link"></el-input>
 				</el-form-item>
 			</el-form>
 			<span slot="footer">
@@ -123,36 +106,28 @@ export default {
 				rows: [],
 				totalRate: 0,
 			},
-			raffleOptionDTO: {
+			voteOptionDTO: {
 				optionId: null,
-				raffleId: null,
+				voteId: null,
 				name: '',
-				noAward: false,
+				description: '',
 				thumbPath: null,
 				thumbUrl: null,
-				rate: null,
-				dayLimit: null,
-				totalLimit: null,
+				link: '',
 			},
 			editRules: {
 				name: [
-					{required: true, message: '请输入奖品名'},
-					{min: 2, max: 50, message: '长度在1-20之间'},
+					{required: true, message: '请输入投票项名'},
+					{min: 1, max: 50, message: '长度在1-20之间'},
 				],
-				noAward: [
-					{required: true, message: '请选择是否为不中奖项'},
+				description: [
+					{max: 50, message: '长度须在1000字符以内'},
 				],
 				thumbPath: [
 					{required: true, message: '请上传缩略图'},
 				],
-				rate: [
-					{required: true, message: '请输入权重'},
-				],
-				dayLimit: [
-					{required: true, message: '请输入每日限制发奖数'},
-				],
-				totalLimit: [
-					{required: true, message: '请输入发奖限制总数'},
+				link: [
+					{max: 50, message: '长度须在200字符以内'},
 				],
 			},
 			editDialog: false,
@@ -163,8 +138,8 @@ export default {
 		this.search();
 	},
 	computed: {
-		...mapState('activityRaffleOption', [
-			'raffleId','activityId','headerTitle',
+		...mapState('activityVoteOption', [
+			'voteId','activityId','headerTitle',
 		]),
 		...mapState('navTabs', [
 			'path2permissionId',
@@ -172,7 +147,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-activity/raffleOption/list/' + this.raffleId, {
+			http.ajax('/service-activity/voteOption/list/' + this.voteId, {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
@@ -184,13 +159,13 @@ export default {
 		},
 		resetForm(formName) {
 			this.$refs[formName].resetFields();
-			this.raffleOptionDTO.thumbUrl = null;
+			this.voteOptionDTO.thumbUrl = null;
 		},
 		openDialog(optionId) {
 			if(optionId != undefined) {
-				http.ajax('/service-activity/raffleOption/' + optionId, {
+				http.ajax('/service-activity/voteOption/' + optionId, {
 					truefun: resData => {
-						this.raffleOptionDTO = resData;
+						this.voteOptionDTO = resData;
 					},
 				});
 			}
@@ -202,13 +177,13 @@ export default {
 				.then((cutter) => {
 					var file = cutter.display();
 					var formdata = new FormData();
-					formdata.append('raffleOptionThumb', file);
-					http.ajax('/service-activity/raffleOption/thumb', {
+					formdata.append('voteOptionThumb', file);
+					http.ajax('/service-activity/voteOption/thumb', {
 						method: 'post',
 						data: formdata,
 						truefun: resData => {
-							this.raffleOptionDTO.thumbPath = resData.thumbPath;
-							this.raffleOptionDTO.thumbUrl = resData.thumbUrl;
+							this.voteOptionDTO.thumbPath = resData.thumbPath;
+							this.voteOptionDTO.thumbUrl = resData.thumbUrl;
 						},
 					});
 				})
@@ -226,10 +201,10 @@ export default {
 					return;
 				}
 				//添加额外信息
-				this.raffleOptionDTO.raffleId = this.raffleId;
-				http.ajax('/service-activity/raffleOption', {
-					method: this.raffleOptionDTO.optionId ? 'put' : 'post',
-					data: this.raffleOptionDTO,
+				this.voteOptionDTO.voteId = this.voteId;
+				http.ajax('/service-activity/voteOption', {
+					method: this.voteOptionDTO.optionId ? 'put' : 'post',
+					data: this.voteOptionDTO,
 					truefun: resData => {
 						this.editDialog = false;
 						this.search(true);
@@ -243,7 +218,7 @@ export default {
 		deleteData(optionId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/raffleOption/' + optionId, {
+				http.ajax('/service-activity/voteOption/' + optionId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();
@@ -259,8 +234,8 @@ export default {
 			'closeTab',
 		]),
 		goBack() {
-			let lastTabPermissionId = this.path2permissionId['/ActivityRaffle'];
-			let thisTabPermissionId = this.path2permissionId['/ActivityRaffleOption'];
+			let lastTabPermissionId = this.path2permissionId['/ActivityVote'];
+			let thisTabPermissionId = this.path2permissionId['/ActivityVoteOption'];
 			this.closeTab([thisTabPermissionId, lastTabPermissionId]);
 		},
 	},

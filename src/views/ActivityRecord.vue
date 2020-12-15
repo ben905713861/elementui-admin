@@ -14,6 +14,9 @@
 			<el-form-item>
 				<el-button type="primary" native-type="submit" @click="search()" icon="el-icon-search">刷新</el-button>
 			</el-form-item>
+			<el-form-item>
+				<el-button type="default" @click="openWindow()" icon="el-icon-s-unfold">查看登记结果</el-button>
+			</el-form-item>
 		</el-form>
 
 		<el-table :data="queryResult.rows" stripe="" border="" header-cell-class-name="bg-gray">
@@ -86,9 +89,21 @@
 				</el-form-item>
 				
 				<el-form-item v-if="recordDTO.type == '单选' || recordDTO.type == '多选'" label="选项配置" prop="options">
-					<el-input type="textarea" v-model="recordDTO.options"></el-input>
+					<el-button size="mini" type="success" @click="addOption()">添加选项</el-button>
 				</el-form-item>
-				
+				<el-form-item v-if="recordDTO.type == '单选' || recordDTO.type == '多选'"
+					v-for="(option, index) in recordDTO.optionList"
+					:label="(index + 1).toString()"
+					:prop="'optionList.' + index + '.option'"
+					:rules="editRules.optionList_option"
+					:key="option.tempId">
+					<el-col :span="18">
+						<el-input v-model="option.option"></el-input>
+					</el-col>
+					<el-col :span="6">
+						<el-button @click.prevent="removeOption(option)" icon="el-icon-delete"></el-button>
+					</el-col>
+				</el-form-item>
 			</el-form>
 			<span slot="footer">
 				<el-button type="success" @click="saveData()">保存</el-button>
@@ -114,9 +129,10 @@ export default {
 				name: '',
 				type: '单行文本',
 				required: false,
-				min: null,
-				max: null,
-				options: '',
+				min: 0,
+				max: 0,
+				options: [],
+				optionList: [],
 			},
 			editRules: {
 				name: [
@@ -134,6 +150,9 @@ export default {
 				],
 				max: [
 					{required: true, message: '请输入最大值,0=不限制'},
+				],
+				optionList_option: [
+					{required: true, message: '请输入选项内容'},
 				],
 			},
 			editDialog: false,
@@ -168,14 +187,32 @@ export default {
 				http.ajax('/service-activity/record/' + recordId, {
 					truefun: resData => {
 						if(resData.options) {
-							resData.options = resData.options.join('\n');
+							let optionList = [];
+							resData.options.forEach((option) => {
+								optionList.push({
+									option: option,
+									tempId: Math.random(),
+								});
+							});
+							resData.optionList = optionList;
 						}
 						this.recordDTO = resData;
 					},
 				});
 			}
-			console.log(this.recordDTO)
 			this.editDialog = true;
+		},
+		addOption() {
+			this.recordDTO.optionList.push({
+				option: '',
+				tempId: Math.random(),
+			});
+		},
+		removeOption(option) {
+			let index = this.recordDTO.optionList.indexOf(option);
+			if(index !== -1) {
+				this.recordDTO.optionList.splice(index, 1);
+			}
 		},
 		typeChange(type) {
 			if(type == '单选') {
@@ -183,7 +220,8 @@ export default {
 				this.recordDTO.max = 0;
 			}
 			if(type != '单选' && type != '多选') {
-				this.recordDTO.options = '';
+				this.recordDTO.options = [];
+				this.recordDTO.optionList = [];
 			}
 		},
 		saveData() {
@@ -200,23 +238,21 @@ export default {
 				}
 				//添加额外信息
 				this.recordDTO.activityId = this.activityId;
-				let postData = {...this.recordDTO};
-				console.log(postData)
-				let options = postData.options;
-				if(options) {
-					options = options.split('\n');
-					let newOptions = [];
-					options.forEach(option => {
-						if(option.trim() != '') {
-							newOptions.push(option);
-						}
-					});
-					postData.options = newOptions;
-					console.log(newOptions)
+				//检查选项
+				if(this.recordDTO.type == '单选' || this.recordDTO.type == '多选') {
+					if(this.recordDTO.optionList.length < 2) {
+						Message.error('单选或多选必须指定至少2个选项');
+						this.saveDisabled = false;
+						return;
+					}
 				}
+				this.recordDTO.options = [];
+				this.recordDTO.optionList.forEach(option => {
+					this.recordDTO.options.push(option.option);
+				});
 				http.ajax('/service-activity/record', {
-					method: postData.recordId ? 'put' : 'post',
-					data: postData,
+					method: this.recordDTO.recordId ? 'put' : 'post',
+					data: this.recordDTO,
 					truefun: resData => {
 						this.editDialog = false;
 						this.search(true);
@@ -243,8 +279,17 @@ export default {
 			return value ? '是' : '否';
 		},
 		...mapMutations('navTabs', [
-			'closeTab',
+			'addTab','closeTab',
 		]),
+		...mapMutations('activityRecordResult', {
+			activityRecordResult_setActivityId: 'setActivityId',
+			activityRecordResult_setHeaderTitle: 'setHeaderTitle',
+		}),
+		openWindow() {
+			this.activityRecordResult_setActivityId(this.activityId);
+			this.activityRecordResult_setHeaderTitle(this.headerTitle);
+			this.addTab(this.path2permissionId['/ActivityRecordResult']);
+		},
 		goBack() {
 			let lastTabPermissionId = this.path2permissionId['/Activity'];
 			let thisTabPermissionId = this.path2permissionId['/ActivityRecord'];

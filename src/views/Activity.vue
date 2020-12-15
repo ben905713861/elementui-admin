@@ -294,6 +294,10 @@ export default {
 			activityRecord_setActivityId: 'setActivityId',
 			activityRecord_setHeaderTitle: 'setHeaderTitle',
 		}),
+		...mapMutations('activityVote', {
+			activityVote_setActivityId: 'setActivityId',
+			activityVote_setHeaderTitle: 'setHeaderTitle',
+		}),
 		openWindow(activityId, path, name) {
 			let type = path[1].toLowerCase() + path.substr(2);
 			this[type + '_setActivityId'](activityId);

@@ -8,6 +8,10 @@ import activityRaffle from './activityRaffle'
 import activityRaffleOption from './activityRaffleOption'
 import activityRaffleResult from './activityRaffleResult'
 import activityRecord from './activityRecord'
+import activityRecordResult from './activityRecordResult'
+import activityVote from './activityVote'
+import activityVoteOption from './activityVoteOption'
+import activityVoteResult from './activityVoteResult'
 
 Vue.use(Vuex);
 
@@ -21,5 +25,9 @@ export default new Vuex.Store({
         activityRaffleOption: activityRaffleOption,
         activityRaffleResult: activityRaffleResult,
         activityRecord: activityRecord,
+        activityRecordResult: activityRecordResult,
+        activityVote: activityVote,
+        activityVoteOption: activityVoteOption,
+        activityVoteResult: activityVoteResult,
     }
 });
