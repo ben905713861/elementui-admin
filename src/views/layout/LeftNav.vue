@@ -164,7 +164,7 @@ export default {
 	    		});
 	    		this.initPermissionMap(permissionMap);
 	    		//渲染左导航
-	    		this.navTree = permisTree.arrange(permissionList);
+	    		this.navTree = permisTree.arrange(permissionList, false);
 	    		return http.get('/service-auth/index/manager');
 	    	})
 	    	.then((res) => {

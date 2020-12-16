@@ -1,12 +1,12 @@
 export default {
-	arrange(treeRows) {
+	arrange(treeRows, showHidden = true) {
 		let permissionId2entity = {};
 		//记录permissionId顺序
 		let permissionIds = [];
 		treeRows.forEach((row) => {
 			permissionId2entity[row.permissionId] = row;
 			permissionIds.push(row.permissionId);
-			if(row.isHidden) {
+			if(row.isHidden && showHidden == false) {
 				return;
 			}
 			if(row.parentId != 0) {

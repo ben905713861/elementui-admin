@@ -57,10 +57,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="是否必填" prop="required">
-					<el-select v-model="recordDTO.required" placeholder="是否必填">
-						<el-option label="是" :key="true" :value="true"></el-option>
-						<el-option label="否" :key="false" :value="false"></el-option>
-					</el-select>
+					<el-switch v-model="recordDTO.required"></el-switch>
 				</el-form-item>
 				
 				<el-form-item v-if="recordDTO.type == '单行文本' || recordDTO.type == '多行文本'" label="最短长度" prop="min">

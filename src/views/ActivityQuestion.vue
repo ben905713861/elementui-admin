@@ -21,7 +21,11 @@
 			<el-table-column prop="questionId" label="questionId" align="center" width="100px"></el-table-column>
 			<el-table-column prop="question" label="题目"></el-table-column>
 			<el-table-column prop="type" label="类型" align="center" width="200px"></el-table-column>
-			<el-table-column prop="maxAnswer" label="多选限制" align="center" width="100px"></el-table-column>
+			<el-table-column label="多选限制" align="center" width="100px">
+				<template slot-scope="scope" v-if="scope.row.type == '多选题'">
+					{{ scope.row.maxAnswer == 0 ? '不限' : scope.row.maxAnswer }}
+				</template>
+			</el-table-column>
 			<el-table-column align="center" label="操作" width="200">
 				<div slot-scope="scope" class="button-group">
 					<el-button size="mini" type="warning" @click="openDialog(scope.row.questionId)" icon="el-icon-edit-outline">修改</el-button>
@@ -49,16 +53,17 @@
 						<el-option label="问答题" key="问答题" value="问答题"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item v-if="showEditDialogSelectorConfig" label="最大多选数" prop="maxAnswer">
-					<el-input-number v-model="questionDTO.maxAnswer" :min="0" :max="10" placeholder="仅多选题有效,0代表不限制"></el-input-number>
+				<el-form-item v-if="questionDTO.type == '多选题'" label="最大多选数" prop="maxAnswer">
+					<el-input-number v-model="questionDTO.maxAnswer" :min="0" :max="10" placeholder="0=不限制"></el-input-number>
 				</el-form-item>
 				<el-form-item label="参考答案" prop="referenceAnswer">
 					<el-input v-model="questionDTO.referenceAnswer" placeholder="选填"></el-input>
 				</el-form-item>
-				<el-form-item label="选项配置" v-if="showEditDialogSelectorConfig">
+				<el-form-item label="选项配置" v-if="questionDTO.type != '问答题'">
 					<el-button size="mini" type="success" @click="addOption()">添加选项</el-button>
 				</el-form-item>
-				<el-form-item v-if="showEditDialogSelectorConfig" v-for="(option, index) in questionDTO.optionList"
+				<el-form-item v-if="questionDTO.type != '问答题'"
+					v-for="(option, index) in questionDTO.optionList"
 					:label="optionKeys[index]"
 					:prop="'optionList.' + index + '.option'"
 					:rules="editRules.optionList_option"
@@ -94,7 +99,7 @@ export default {
 				questioId: null,
 				questionModuleId: null,
 				question: '',
-				type: null,
+				type: '单选题',
 				maxAnswer: 0,
 				referenceAnswer: '',
 				optionList: [{
@@ -121,7 +126,6 @@ export default {
 				],
 			},
 			editDialog: false,
-			showEditDialogSelectorConfig: true,
 			optionKeys: ['A','B','C','D','E','F','G','H','I','J'],
 			saveDisabled: false,
 		}
@@ -168,9 +172,11 @@ export default {
 			this.editDialog = true;
 		},
 		questionTypeChange(value) {
-			this.showEditDialogSelectorConfig = value != '问答题';
 			if(value == '问答题') {
 				this.questionDTO.optionList = [];
+			}
+			if(value != '多选题') {
+				this.questionDTO.maxAnswer = 0;
 			}
 		},
 		addOption() {

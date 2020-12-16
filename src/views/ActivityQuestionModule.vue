@@ -19,8 +19,16 @@
 		<el-table :data="queryResult.rows" stripe="" border="" header-cell-class-name="bg-gray">
 			<el-table-column prop="questionModuleId" label="questionModuleId" align="center"></el-table-column>
 			<el-table-column prop="title" label="问卷名" align="center"></el-table-column>
-			<el-table-column prop="dayLimit" label="每人每日限答次数" align="center"></el-table-column>
-			<el-table-column prop="totalLimit" label="每人限答总次数" align="center"></el-table-column>
+			<el-table-column label="每人每日限答次数" align="center">
+				<template slot-scope="scope">
+					{{ scope.row.dayLimit == 0 ? '不限' : scope.row.dayLimit }}
+				</template>
+			</el-table-column>
+			<el-table-column label="每人限答总次数" align="center">
+				<template slot-scope="scope">
+					{{ scope.row.totalLimit == 0 ? '不限' : scope.row.totalLimit }}
+				</template>
+			</el-table-column>
 			<el-table-column align="center" label="操作" width="500">
 				<div slot-scope="scope" class="button-group">
 					<el-button size="mini" type="info"

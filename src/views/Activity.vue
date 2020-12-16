@@ -94,7 +94,7 @@
 					<el-input v-model="activityDTO.name"></el-input>
 				</el-form-item>
 				<el-form-item label="类型" prop="type" placeholder="活动类型">
-					<el-select v-model="activityDTO.type" multiple="">
+					<el-select v-model="activityDTO.type" multiple="" :disabled="activityDTO.activityId != null">
 						<el-option label="问卷" key="问卷" value="问卷"></el-option>
 						<el-option label="抽奖" key="抽奖" value="抽奖"></el-option>
 						<el-option label="登记" key="登记" value="登记"></el-option>

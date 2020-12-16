@@ -95,8 +95,8 @@ export default {
 			truefun: resData => {
 				resData.forEach(vote => {
 					this.voteId2vote[vote.optionId] = vote;
-					this.search();
 				});
+				this.search();
 			},
 		});
 	},

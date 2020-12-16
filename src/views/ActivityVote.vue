@@ -21,9 +21,17 @@
 			<el-table-column prop="title" label="投票名" align="center"></el-table-column>
 			<el-table-column prop="maxSelect" label="最多选择数" align="center"></el-table-column>
 			<el-table-column prop="minSelect" label="最小选择数" align="center"></el-table-column>
-			<el-table-column prop="allowView" label="是否允许查看结果" :formatter="formatBoolean" align="center"></el-table-column>
-			<el-table-column prop="dayLimit" label="每人每日限抽次数" align="center"></el-table-column>
-			<el-table-column prop="totalLimit" label="每人限抽总次数" align="center"></el-table-column>
+			<el-table-column prop="allowView" label="允许查看结果" :formatter="formatBoolean" align="center"></el-table-column>
+			<el-table-column prop="dayLimit" label="每人每日限投次数" align="center">
+				<template slot-scope="scope">
+					{{ scope.row.dayLimit == 0 ? '不限' : scope.row.dayLimit }}
+				</template>
+			</el-table-column>
+			<el-table-column prop="totalLimit" label="每人限投总次数" align="center">
+				<template slot-scope="scope">
+					{{ scope.row.totalLimit == 0 ? '不限' : scope.row.totalLimit }}
+				</template>
+			</el-table-column>
 			<el-table-column align="center" label="操作" width="500">
 				<div slot-scope="scope" class="button-group">
 					<el-button size="mini" type="info"
@@ -62,10 +70,10 @@
 				<el-form-item label="允许查看投票结果" prop="allowView">
 					<el-switch v-model="voteDTO.allowView"></el-switch>
 				</el-form-item>
-				<el-form-item label="每人每天限抽次数" prop="dayLimit">
+				<el-form-item label="每人每天限投次数" prop="dayLimit">
 					<el-input-number v-model="voteDTO.dayLimit" :min="0" :max="100" placeholder="0代表不限制"></el-input-number>
 				</el-form-item>
-				<el-form-item label="每人限抽总次数" prop="totalLimit">
+				<el-form-item label="每人限投总次数" prop="totalLimit">
 					<el-input-number v-model="voteDTO.totalLimit" :min="0" :max="100" placeholder="0代表不限制"></el-input-number>
 				</el-form-item>
 			</el-form>
@@ -114,10 +122,10 @@ export default {
 					{required: true, message: '请输入最大选择数'},
 				],
 				dayLimit: [
-					{required: true, message: '请输入每人每日限抽次数'},
+					{required: true, message: '请输入每人每日限投次数'},
 				],
 				totalLimit: [
-					{required: true, message: '每人限抽总次数'},
+					{required: true, message: '每人限投总次数'},
 				],
 			},
 			showDialog: false,

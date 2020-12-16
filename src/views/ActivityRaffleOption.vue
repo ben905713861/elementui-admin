@@ -54,8 +54,16 @@
 					{{ (scope.row.rate / queryResult.totalRate*100).toFixed(2) }}%
 				</template>
 			</el-table-column>
-			<el-table-column prop="dayLimit" label="每日限制发奖数" align="center"></el-table-column>
-			<el-table-column prop="totalLimit" label="发奖限制总数" align="center"></el-table-column>
+			<el-table-column label="每日限制发奖数" align="center">
+				<template slot-scope="scope">
+					{{ scope.row.dayLimit == 0 ? '不限' : scope.row.dayLimit }}
+				</template>
+			</el-table-column>
+			<el-table-column prop="totalLimit" label="发奖限制总数" align="center">
+				<template slot-scope="scope">
+					{{ scope.row.totalLimit == 0 ? '不限' : scope.row.totalLimit }}
+				</template>
+			</el-table-column>
 			<el-table-column align="center" label="操作" width="200">
 				<div slot-scope="scope" class="button-group">
 					<el-button size="mini" type="warning" @click="openDialog(scope.row.optionId)" icon="el-icon-edit-outline">修改</el-button>
@@ -77,10 +85,7 @@
 					<el-input v-model="raffleOptionDTO.name"></el-input>
 				</el-form-item>
 				<el-form-item label="是否为不中奖项" prop="noAward">
-					<el-select v-model="raffleOptionDTO.noAward" placeholder="是否为不中奖项">
-						<el-option label="是" :key="true" :value="true"></el-option>
-						<el-option label="否" :key="false" :value="false"></el-option>
-					</el-select>
+					<el-switch v-model="raffleOptionDTO.noAward" @change="isNoAwardChange"></el-switch>
 				</el-form-item>
 				<el-form-item label="缩略图" prop="thumbPath">
 					<el-input v-show="false" v-model="raffleOptionDTO.thumbPath"></el-input>
@@ -95,10 +100,10 @@
 				<el-form-item label="权重" prop="rate">
 					<el-input-number v-model="raffleOptionDTO.rate" :min="0" :max="10000"></el-input-number>
 				</el-form-item>
-				<el-form-item label="每日限制发奖数" prop="dayLimit">
+				<el-form-item label="每日限制发奖数" prop="dayLimit" v-if="raffleOptionDTO.noAward == false">
 					<el-input-number v-model="raffleOptionDTO.dayLimit" :min="0" :max="10000" placeholder="0代表不限制"></el-input-number>
 				</el-form-item>
-				<el-form-item label="发奖限制总数" prop="totalLimit">
+				<el-form-item label="发奖限制总数" prop="totalLimit" v-if="raffleOptionDTO.noAward == false">
 					<el-input-number v-model="raffleOptionDTO.totalLimit" :min="0" :max="10000" placeholder="0代表不限制"></el-input-number>
 				</el-form-item>
 			</el-form>
@@ -195,6 +200,12 @@ export default {
 				});
 			}
 			this.editDialog = true;
+		},
+		isNoAwardChange(isNoAward) {
+			if(isNoAward) {
+				this.raffleOptionDTO.dayLimit = 0;
+				this.raffleOptionDTO.totalLimit = 0;
+			}
 		},
 		uploadThumb(v) {
 			ImageCutter.instance(v.file)
