@@ -142,7 +142,7 @@ export default {
 			editRules: {
 				name: [
 					{required: true, message: '请输入奖品名'},
-					{min: 2, max: 50, message: '长度在1-20之间'},
+					{min: 1, max: 20, message: '长度在1-20之间'},
 				],
 				noAward: [
 					{required: true, message: '请选择是否为不中奖项'},
@@ -177,7 +177,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-activity/raffleOption/list/' + this.raffleId, {
+			http.ajax('/activity-admin-service/raffleOption/list/' + this.raffleId, {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
@@ -193,7 +193,7 @@ export default {
 		},
 		openDialog(optionId) {
 			if(optionId != undefined) {
-				http.ajax('/service-activity/raffleOption/' + optionId, {
+				http.ajax('/activity-admin-service/raffleOption/' + optionId, {
 					truefun: resData => {
 						this.raffleOptionDTO = resData;
 					},
@@ -214,7 +214,7 @@ export default {
 					var file = cutter.display();
 					var formdata = new FormData();
 					formdata.append('raffleOptionThumb', file);
-					http.ajax('/service-activity/raffleOption/thumb', {
+					http.ajax('/activity-admin-service/raffleOption/thumb', {
 						method: 'post',
 						data: formdata,
 						truefun: resData => {
@@ -238,7 +238,7 @@ export default {
 				}
 				//添加额外信息
 				this.raffleOptionDTO.raffleId = this.raffleId;
-				http.ajax('/service-activity/raffleOption', {
+				http.ajax('/activity-admin-service/raffleOption', {
 					method: this.raffleOptionDTO.optionId ? 'put' : 'post',
 					data: this.raffleOptionDTO,
 					truefun: resData => {
@@ -254,7 +254,7 @@ export default {
 		deleteData(optionId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/raffleOption/' + optionId, {
+				http.ajax('/activity-admin-service/raffleOption/' + optionId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

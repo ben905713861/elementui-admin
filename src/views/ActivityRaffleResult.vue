@@ -80,7 +80,7 @@ export default {
 	methods: {
 		search() {
 			this.queryParams.raffleId = this.raffleId;
-			http.ajax('/service-activity/raffleResult', {
+			http.ajax('/activity-admin-service/raffleResult', {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult = res;
@@ -99,12 +99,12 @@ export default {
 			this.search();
 		},
 		exportExcel() {
-			http.download('/service-activity/raffleResult/exportExcel/' + this.raffleId);
+			http.download('/activity-admin-service/raffleResult/exportExcel/' + this.raffleId);
 		},
 		removeAll() {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/raffleResult/all/' + this.raffleId, {
+				http.ajax('/activity-admin-service/raffleResult/all/' + this.raffleId, {
 					method: 'delete',
 					truefun: res => {
 						this.search();

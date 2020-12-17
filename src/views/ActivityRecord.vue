@@ -134,7 +134,7 @@ export default {
 			editRules: {
 				name: [
 					{required: true, message: '请输入登记项名'},
-					{min: 1, max: 50, message: '长度在1-20之间'},
+					{min: 1, max: 50, message: '长度在1-50之间'},
 				],
 				type: [
 					{required: true, message: '请选择是否为不中奖项'},
@@ -169,7 +169,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-activity/record/list/' + this.activityId, {
+			http.ajax('/activity-admin-service/record/list/' + this.activityId, {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
@@ -181,7 +181,7 @@ export default {
 		},
 		openDialog(recordId) {
 			if(recordId != undefined) {
-				http.ajax('/service-activity/record/' + recordId, {
+				http.ajax('/activity-admin-service/record/' + recordId, {
 					truefun: resData => {
 						if(resData.options) {
 							let optionList = [];
@@ -247,7 +247,7 @@ export default {
 				this.recordDTO.optionList.forEach(option => {
 					this.recordDTO.options.push(option.option);
 				});
-				http.ajax('/service-activity/record', {
+				http.ajax('/activity-admin-service/record', {
 					method: this.recordDTO.recordId ? 'put' : 'post',
 					data: this.recordDTO,
 					truefun: resData => {
@@ -263,7 +263,7 @@ export default {
 		deleteData(recordId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/record/' + recordId, {
+				http.ajax('/activity-admin-service/record/' + recordId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

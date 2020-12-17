@@ -136,7 +136,7 @@ export default {
 			if(isPage1) {
 				this.queryParams.page = 1;
 			}
-			http.ajax('/service-activity/wx', {
+			http.ajax('/activity-admin-service/wx', {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult = res;
@@ -156,7 +156,7 @@ export default {
 		},
 		openDialog(wxId) {
 			if(wxId != undefined) {
-				http.ajax('/service-activity/wx/' + wxId, {
+				http.ajax('/activity-admin-service/wx/' + wxId, {
 					truefun: resData => {
 						this.wxDTO = resData;
 					},
@@ -170,7 +170,7 @@ export default {
 					Message.error('表单信息错误');
 					return;
 				}
-				http.ajax('/service-activity/wx', {
+				http.ajax('/activity-admin-service/wx', {
 					method: this.wxDTO.wxId ? 'put' : 'post',
 					data: this.wxDTO,
 					truefun: resData => {
@@ -183,7 +183,7 @@ export default {
 		deleteData(wxId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/wx/' + wxId, {
+				http.ajax('/activity-admin-service/wx/' + wxId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

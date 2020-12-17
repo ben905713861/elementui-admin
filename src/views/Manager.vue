@@ -162,7 +162,7 @@ export default {
 	},
 	mounted() {
 		this.search(true);
-		http.ajax('/service-auth/index/role', {
+		http.ajax('/auth-admin-service/index/role', {
 			data: this.queryParams,
 			truefun: res => {
 				res.forEach(role => {
@@ -176,7 +176,7 @@ export default {
 			if(isPage1) {
 				this.queryParams.page = 1;
 			}
-			http.ajax('/service-auth/manager', {
+			http.ajax('/auth-admin-service/manager', {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult = res;
@@ -196,7 +196,7 @@ export default {
 		},
 		openDialog(managerId) {
 			if(managerId != undefined) {
-				http.ajax('/service-auth/manager/' + managerId, {
+				http.ajax('/auth-admin-service/manager/' + managerId, {
 					truefun: resData => {
 						this.managerDTO = resData;
 					},
@@ -217,7 +217,7 @@ export default {
 					Message.error('表单信息错误');
 					return;
 				}
-				http.ajax('/service-auth/manager', {
+				http.ajax('/auth-admin-service/manager', {
 					method: this.managerDTO.managerId ? 'put' : 'post',
 					data: this.managerDTO,
 					truefun: resData => {
@@ -230,7 +230,7 @@ export default {
 		deleteData(managerId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-auth/manager/' + managerId, {
+				http.ajax('/auth-admin-service/manager/' + managerId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

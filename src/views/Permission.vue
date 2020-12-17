@@ -53,7 +53,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-auth/permission', {
+			http.ajax('/auth-admin-service/permission', {
 				truefun: res => {
 					this.queryResult.rows = permisTree.arrange(res);
 				},

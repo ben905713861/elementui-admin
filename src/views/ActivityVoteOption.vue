@@ -118,16 +118,16 @@ export default {
 			editRules: {
 				name: [
 					{required: true, message: '请输入投票项名'},
-					{min: 1, max: 50, message: '长度在1-20之间'},
+					{min: 1, max: 20, message: '长度在1-20之间'},
 				],
 				description: [
-					{max: 50, message: '长度须在1000字符以内'},
+					{max: 1000, message: '长度须在1000字符以内'},
 				],
 				thumbPath: [
 					{required: true, message: '请上传缩略图'},
 				],
 				link: [
-					{max: 50, message: '长度须在200字符以内'},
+					{max: 200, message: '长度须在200字符以内'},
 				],
 			},
 			editDialog: false,
@@ -147,7 +147,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-activity/voteOption/list/' + this.voteId, {
+			http.ajax('/activity-admin-service/voteOption/list/' + this.voteId, {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
@@ -163,7 +163,7 @@ export default {
 		},
 		openDialog(optionId) {
 			if(optionId != undefined) {
-				http.ajax('/service-activity/voteOption/' + optionId, {
+				http.ajax('/activity-admin-service/voteOption/' + optionId, {
 					truefun: resData => {
 						this.voteOptionDTO = resData;
 					},
@@ -178,7 +178,7 @@ export default {
 					var file = cutter.display();
 					var formdata = new FormData();
 					formdata.append('voteOptionThumb', file);
-					http.ajax('/service-activity/voteOption/thumb', {
+					http.ajax('/activity-admin-service/voteOption/thumb', {
 						method: 'post',
 						data: formdata,
 						truefun: resData => {
@@ -202,7 +202,7 @@ export default {
 				}
 				//添加额外信息
 				this.voteOptionDTO.voteId = this.voteId;
-				http.ajax('/service-activity/voteOption', {
+				http.ajax('/activity-admin-service/voteOption', {
 					method: this.voteOptionDTO.optionId ? 'put' : 'post',
 					data: this.voteOptionDTO,
 					truefun: resData => {
@@ -218,7 +218,7 @@ export default {
 		deleteData(optionId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/voteOption/' + optionId, {
+				http.ajax('/activity-admin-service/voteOption/' + optionId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

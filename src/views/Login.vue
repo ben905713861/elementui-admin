@@ -115,7 +115,7 @@
 						return;
 					}
 					this.loginDTO.verifyXvalue = verifyXvalue;
-					http.ajax('/service-auth/login/manager', {
+					http.ajax('/auth-admin-service/login/manager', {
 						method: 'post',
 						data: this.loginDTO,
 						truefun: (resData) => {
@@ -136,7 +136,7 @@
 			},
 			loadVerifyImg(username) {
 				this.openVerifyModal = true;
-				http.ajax('/service-auth/login/manager/verifyImg', {
+				http.ajax('/auth-admin-service/login/manager/verifyImg', {
 					data: {
 						username: username,
 					},

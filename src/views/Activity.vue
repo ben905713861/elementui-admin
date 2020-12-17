@@ -209,7 +209,7 @@ export default {
 	},
 	mounted() {
 		this.search(true);
-		http.ajax('/service-wx/wx/all', {
+		http.ajax('/activity-admin-service/activity/init', {
 			data: this.queryParams,
 			truefun: res => {
 				res.forEach(wx => {
@@ -223,7 +223,7 @@ export default {
 			if(isPage1) {
 				this.queryParams.page = 1;
 			}
-			http.ajax('/service-activity/activity', {
+			http.ajax('/activity-admin-service/activity', {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult = res;
@@ -243,7 +243,7 @@ export default {
 		},
 		openDialog(activityId) {
 			if(activityId != undefined) {
-				http.ajax('/service-activity/activity/' + activityId, {
+				http.ajax('/activity-admin-service/activity/' + activityId, {
 					truefun: resData => {
 						this.activityDTO = resData;
 					},
@@ -257,7 +257,7 @@ export default {
 					Message.error('表单信息错误');
 					return;
 				}
-				http.ajax('/service-activity/activity', {
+				http.ajax('/activity-admin-service/activity', {
 					method: this.activityDTO.activityId ? 'put' : 'post',
 					data: this.activityDTO,
 					truefun: resData => {
@@ -270,7 +270,7 @@ export default {
 		deleteData(activityId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/activity/' + activityId, {
+				http.ajax('/activity-admin-service/activity/' + activityId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

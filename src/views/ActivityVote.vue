@@ -144,7 +144,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-activity/vote/list/' + this.activityId, {
+			http.ajax('/activity-admin-service/vote/list/' + this.activityId, {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
@@ -156,7 +156,7 @@ export default {
 		},
 		openDialog(voteId) {
 			if(voteId != undefined) {
-				http.ajax('/service-activity/vote/' + voteId, {
+				http.ajax('/activity-admin-service/vote/' + voteId, {
 					truefun: resData => {
 						this.voteDTO = resData;
 					},
@@ -171,7 +171,7 @@ export default {
 					return;
 				}
 				this.voteDTO.activityId = this.activityId;
-				http.ajax('/service-activity/vote', {
+				http.ajax('/activity-admin-service/vote', {
 					method: this.voteDTO.voteId ? 'put' : 'post',
 					data: this.voteDTO,
 					truefun: resData => {
@@ -184,7 +184,7 @@ export default {
 		deleteData(voteId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/vote/' + voteId, {
+				http.ajax('/activity-admin-service/vote/' + voteId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

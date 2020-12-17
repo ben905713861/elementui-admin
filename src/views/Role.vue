@@ -120,7 +120,7 @@ export default {
 	mounted() {
 		this.search();
 		//加载权限树
-		http.ajax('/service-auth/permission', {
+		http.ajax('/auth-admin-service/permission', {
 			truefun: res => {
 				this.permissionList = permisTree.arrange(res);
 			},
@@ -128,7 +128,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-auth/role', {
+			http.ajax('/auth-admin-service/role', {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
@@ -140,7 +140,7 @@ export default {
 		},
 		openDialog(roleId) {
 			if(roleId != undefined) {
-				http.ajax('/service-auth/role/' + roleId, {
+				http.ajax('/auth-admin-service/role/' + roleId, {
 					truefun: resData => {
 						this.roleDTO = resData;
 					},
@@ -149,7 +149,7 @@ export default {
 			this.updateRoleDialog = true;
 		},
 		openRolePermissionDialog(roleId) {
-			http.ajax('/service-auth/role/rolePermission/' + roleId, {
+			http.ajax('/auth-admin-service/role/rolePermission/' + roleId, {
 				truefun: resData => {
 					resData.forEach(permissionId => {
 						let node = this.$refs['permissionTree'].getNode(permissionId);
@@ -168,7 +168,7 @@ export default {
 					Message.error('表单信息错误');
 					return;
 				}
-				http.ajax('/service-auth/role', {
+				http.ajax('/auth-admin-service/role', {
 					method: this.roleDTO.roleId ? 'put' : 'post',
 					data: this.roleDTO,
 					truefun: resData => {
@@ -182,7 +182,7 @@ export default {
 			let leafKeys = this.$refs['permissionTree'].getCheckedKeys();
 			let halfKeys = this.$refs['permissionTree'].getHalfCheckedKeys();
 			let keys = [...leafKeys, ...halfKeys];
-			http.ajax('/service-auth/role/rolePermission/' + this.rolePermissionDTO.roleId, {
+			http.ajax('/auth-admin-service/role/rolePermission/' + this.rolePermissionDTO.roleId, {
 				method: 'post',
 				data: keys,
 				truefun: resData => {
@@ -196,7 +196,7 @@ export default {
 		deleteData(roleId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-auth/role/' + roleId, {
+				http.ajax('/auth-admin-service/role/' + roleId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

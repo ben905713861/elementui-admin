@@ -113,7 +113,7 @@ export default {
 	},
 	mounted() {
 		this.search();
-		http.ajax('/service-activity/recordResult/init/' + this.activityId, {
+		http.ajax('/activity-admin-service/recordResult/init/' + this.activityId, {
 			truefun: res => {
 				res.forEach(recordDTO => {
 					this.recordId2recordDTO[recordDTO.recordId] = recordDTO;
@@ -132,7 +132,7 @@ export default {
 	methods: {
 		search() {
 			this.queryParams.activityId = this.activityId;
-			http.ajax('/service-activity/recordResult', {
+			http.ajax('/activity-admin-service/recordResult', {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult = res;
@@ -162,12 +162,12 @@ export default {
 			this.editDialog = true;
 		},
 		exportExcel() {
-			http.download('/service-activity/recordResult/exportExcel/' + this.activityId);
+			http.download('/activity-admin-service/recordResult/exportExcel/' + this.activityId);
 		},
 		removeAll() {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/recordResult/all/' + this.activityId, {
+				http.ajax('/activity-admin-service/recordResult/all/' + this.activityId, {
 					method: 'delete',
 					truefun: res => {
 						this.search();

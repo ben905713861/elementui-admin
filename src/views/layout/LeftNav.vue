@@ -140,7 +140,7 @@ export default {
     	}
     },
     mounted() {
-    	http.get('/service-auth/index/role')
+    	http.get('/auth-admin-service/index/role')
 	    	.then((res) => {
 	    		if(res.status != 0) {
 	    			throw res.msg;
@@ -150,7 +150,7 @@ export default {
 					this.roleMap[role.roleId] = role;
 				});
 				//获取菜单
-				return http.get('/service-auth/index/menu');
+				return http.get('/auth-admin-service/index/menu');
 	    	})
 	    	.then((res) => {
 	    		if(res.status != 0) {
@@ -165,7 +165,7 @@ export default {
 	    		this.initPermissionMap(permissionMap);
 	    		//渲染左导航
 	    		this.navTree = permisTree.arrange(permissionList, false);
-	    		return http.get('/service-auth/index/manager');
+	    		return http.get('/auth-admin-service/index/manager');
 	    	})
 	    	.then((res) => {
 	    		if(res.status != 0) {
@@ -205,7 +205,7 @@ export default {
 					Message.error('表单信息错误');
 					return;
 				}
-				http.ajax('/service-auth/index/manager', {
+				http.ajax('/auth-admin-service/index/manager', {
 					method: 'put',
 					data: this.managerDTO,
 					truefun: (resData) => {

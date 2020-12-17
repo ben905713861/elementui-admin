@@ -91,7 +91,7 @@ export default {
 		}
 	},
 	mounted() {
-		http.ajax('/service-activity/voteResult/init/' + this.voteId, {
+		http.ajax('/activity-admin-service/voteResult/init/' + this.voteId, {
 			truefun: resData => {
 				resData.forEach(vote => {
 					this.voteId2vote[vote.optionId] = vote;
@@ -111,7 +111,7 @@ export default {
 	methods: {
 		search() {
 			this.queryParams.voteId = this.voteId;
-			http.ajax('/service-activity/voteResult', {
+			http.ajax('/activity-admin-service/voteResult', {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult = res;
@@ -131,7 +131,7 @@ export default {
 		},
 		exportExcel() {
 			//ws请求
-			let socket = http.socket('/service-activity/voteResult/exportExcel/' + this.voteId);
+			let socket = http.socket('/activity-admin-service/voteResult/exportExcel/' + this.voteId);
 			socket.onopen = () => {
 				this.showDialog = true;
 			}
@@ -157,7 +157,7 @@ export default {
 		},
 		downloadExcel() {
 			console.log(this.exportInfo.downloadPath)
-			http.download('/service-activity/voteResult/export', {
+			http.download('/activity-admin-service/voteResult/export', {
 				voteId: this.voteId,
 				path: this.exportInfo.downloadPath,
 			});
@@ -171,7 +171,7 @@ export default {
 		removeAll() {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/voteResult/all/' + this.voteId, {
+				http.ajax('/activity-admin-service/voteResult/all/' + this.voteId, {
 					method: 'delete',
 					truefun: res => {
 						this.search();

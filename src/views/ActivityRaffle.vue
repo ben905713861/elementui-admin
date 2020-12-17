@@ -140,7 +140,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-activity/raffle/list/' + this.activityId, {
+			http.ajax('/activity-admin-service/raffle/list/' + this.activityId, {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
@@ -152,7 +152,7 @@ export default {
 		},
 		openDialog(raffleId) {
 			if(raffleId != undefined) {
-				http.ajax('/service-activity/raffle/' + raffleId, {
+				http.ajax('/activity-admin-service/raffle/' + raffleId, {
 					truefun: resData => {
 						this.raffleDTO = resData;
 					},
@@ -167,7 +167,7 @@ export default {
 					return;
 				}
 				this.raffleDTO.activityId = this.activityId;
-				http.ajax('/service-activity/raffle', {
+				http.ajax('/activity-admin-service/raffle', {
 					method: this.raffleDTO.raffleId ? 'put' : 'post',
 					data: this.raffleDTO,
 					truefun: resData => {
@@ -180,7 +180,7 @@ export default {
 		deleteData(raffleId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/raffle/' + raffleId, {
+				http.ajax('/activity-admin-service/raffle/' + raffleId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

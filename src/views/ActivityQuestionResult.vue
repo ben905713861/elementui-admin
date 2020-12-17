@@ -97,7 +97,7 @@ export default {
 	},
 	mounted() {
 		this.search();
-		http.ajax('/service-activity/questionResult/init/' + this.questionModuleId, {
+		http.ajax('/activity-admin-service/questionResult/init/' + this.questionModuleId, {
 			truefun: res => {
 				res.forEach(questionDTO => {
 					this.questionId2questionDTO[questionDTO.questionId] = questionDTO;
@@ -123,7 +123,7 @@ export default {
 	methods: {
 		search() {
 			this.queryParams.questionModuleId = this.questionModuleId;
-			http.ajax('/service-activity/questionResult', {
+			http.ajax('/activity-admin-service/questionResult', {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult = res;
@@ -168,12 +168,12 @@ export default {
 			this.editDialog = true;
 		},
 		exportExcel() {
-			http.download('/service-activity/questionResult/exportExcel/' + this.questionModuleId);
+			http.download('/activity-admin-service/questionResult/exportExcel/' + this.questionModuleId);
 		},
 		removeAll() {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/questionResult/all/' + this.questionModuleId, {
+				http.ajax('/activity-admin-service/questionResult/all/' + this.questionModuleId, {
 					method: 'delete',
 					truefun: res => {
 						this.search();

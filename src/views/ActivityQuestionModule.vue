@@ -116,7 +116,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-activity/questionModule/list/' + this.activityId, {
+			http.ajax('/activity-admin-service/questionModule/list/' + this.activityId, {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
@@ -128,7 +128,7 @@ export default {
 		},
 		openDialog(questionModuleId) {
 			if(questionModuleId != undefined) {
-				http.ajax('/service-activity/questionModule/' + questionModuleId, {
+				http.ajax('/activity-admin-service/questionModule/' + questionModuleId, {
 					truefun: resData => {
 						this.questionModuleDTO = resData;
 					},
@@ -143,7 +143,7 @@ export default {
 					return;
 				}
 				this.questionModuleDTO.activityId = this.activityId;
-				http.ajax('/service-activity/questionModule', {
+				http.ajax('/activity-admin-service/questionModule', {
 					method: this.questionModuleDTO.questionModuleId ? 'put' : 'post',
 					data: this.questionModuleDTO,
 					truefun: resData => {
@@ -156,7 +156,7 @@ export default {
 		deleteData(questionModuleId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/questionModule/' + questionModuleId, {
+				http.ajax('/activity-admin-service/questionModule/' + questionModuleId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();

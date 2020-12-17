@@ -123,6 +123,7 @@ export default {
 				],
 				optionList_option: [
 					{required: true, message: '请输入选项内容'},
+					{min: 1, max: 50, message: '长度在1-50之间'},
 				],
 			},
 			editDialog: false,
@@ -143,7 +144,7 @@ export default {
 	},
 	methods: {
 		search() {
-			http.ajax('/service-activity/question/list/' + this.questionModuleId, {
+			http.ajax('/activity-admin-service/question/list/' + this.questionModuleId, {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
@@ -155,7 +156,7 @@ export default {
 		},
 		openDialog(questionId) {
 			if(questionId != undefined) {
-				http.ajax('/service-activity/question/' + questionId, {
+				http.ajax('/activity-admin-service/question/' + questionId, {
 					truefun: resData => {
 						this.questionDTO = resData;
 					},
@@ -211,7 +212,7 @@ export default {
 						optionList[i].key = this.optionKeys[i];
 					}
 				}
-				http.ajax('/service-activity/question', {
+				http.ajax('/activity-admin-service/question', {
 					method: this.questionDTO.questionId ? 'put' : 'post',
 					data: this.questionDTO,
 					truefun: resData => {
@@ -227,7 +228,7 @@ export default {
 		deleteData(questionId) {
 			this.$confirm('确定删除？', '操作警告')
 			.then(() => {
-				http.ajax('/service-activity/question/' + questionId, {
+				http.ajax('/activity-admin-service/question/' + questionId, {
 					method: 'delete',
 					truefun: resData => {
 						this.search();
