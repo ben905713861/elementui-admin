@@ -1,10 +1,22 @@
 <style>
-
+#echarts-main {
+	width: 100%;
+	height:400px;
+}
 </style>
 
 <template>
 	<div>
 		<el-page-header @back="goBack" :content="headerTitle + ' - 投票结果'"></el-page-header>
+		<hr class="hr" color="#F2F6FC">
+		
+		<el-form @submit.native.prevent="">
+			<el-form-item>
+				<el-button type="primary" native-type="submit" @click="searchVoteNum()" icon="el-icon-search">刷新得票数</el-button>
+			</el-form-item>
+		</el-form>
+		
+		<div id="echarts-main"></div>
 		<hr class="hr" color="#F2F6FC">
 		
 		<el-form :model="queryParams" ref="searchForm" label-width="auto" :inline="true" class="search-form" @submit.native.prevent="">
@@ -91,14 +103,7 @@ export default {
 		}
 	},
 	mounted() {
-		http.ajax('/activity-admin-service/voteResult/init/' + this.voteId, {
-			truefun: resData => {
-				resData.forEach(vote => {
-					this.voteId2vote[vote.optionId] = vote;
-				});
-				this.search();
-			},
-		});
+		this.searchVoteNum(this.search);
 	},
 	computed: {
 		...mapState('activityVoteResult', [
@@ -109,6 +114,39 @@ export default {
 		]),
 	},
 	methods: {
+		searchVoteNum(callback) {
+			http.ajax('/activity-admin-service/voteResult/voteNum/' + this.voteId, {
+				truefun: resData => {
+					let voteId2vote = {};
+					let voteName2voteNum = {};
+					resData.forEach(vote => {
+						voteId2vote[vote.optionId] = vote;
+						voteName2voteNum[vote.name] = vote.voteNum;
+					});
+					this.voteId2vote = voteId2vote;
+					
+					// 基于准备好的dom，初始化echarts实例
+					var echarts = require('echarts');
+					var myChart = echarts.init(document.getElementById('echarts-main'));
+					// 绘制图表
+					myChart.setOption({
+					    tooltip: {},
+					    xAxis: {
+					        data: Object.keys(voteName2voteNum),
+					    },
+					    yAxis: {},
+					    series: [{
+					        name: '得票数',
+					        type: 'bar',
+					        data: Object.values(voteName2voteNum),
+					    }]
+					});
+					
+					//回调
+					callback && callback();
+				},
+			});
+		},
 		search() {
 			this.queryParams.voteId = this.voteId;
 			http.ajax('/activity-admin-service/voteResult', {
