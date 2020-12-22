@@ -213,6 +213,7 @@ export default {
 					method: 'delete',
 					truefun: res => {
 						this.search();
+						this.searchVoteNum();
 					},
 				});
 			})

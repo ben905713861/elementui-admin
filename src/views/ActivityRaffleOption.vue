@@ -181,9 +181,11 @@ export default {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
+					let totalRate = 0;
 					res.forEach(row => {
-						this.queryResult.totalRate += row.rate;
+						totalRate += row.rate;
 					});
+					this.queryResult.totalRate = totalRate;
 				},
 			});
 		},

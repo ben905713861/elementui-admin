@@ -262,7 +262,7 @@ export default {
 					data: this.activityDTO,
 					truefun: resData => {
 						this.editDialog = false;
-						this.search(true);
+						this.search();
 					},
 				});
 			});
@@ -311,27 +311,27 @@ export default {
 			let status;
 			let now;
 			{
-				var date = new Date();
-				var Y = date.getFullYear();
-				var M = date.getMonth() + 1;
-				var D = date.getDate();
+				let date = new Date();
+				let Y = date.getFullYear();
+				let M = date.getMonth() + 1;
+				let D = date.getDate();
 				if(D < 10) {
 					D = '0' + D;
 				}
-				var h = date.getHours();
+				let h = date.getHours();
 				if(h < 10) {
 					h = '0' + h;
 				}
-				var m = date.getMinutes();
+				let m = date.getMinutes();
 				if(m < 10) {
 					m = '0' + m;
 				}
-				var s = date.getSeconds();
+				let s = date.getSeconds();
 				if(s < 10) {
 					s = '0' + s;
 				}
+				now = Y+'-'+M+'-'+D+' '+h+':'+m+':'+s;
 			}
-			now = Y+'-'+M+'-'+D+' '+h+':'+m+':'+s;
 			if(now < row.startTime) {
 				status = '未开始';
 			} else if(now > row.endTime) {
