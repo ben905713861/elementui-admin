@@ -36,18 +36,39 @@
 			<el-form-item>
 				<el-button type="primary" native-type="submit" @click="search()" icon="el-icon-search">刷新</el-button>
 			</el-form-item>
+			<el-form-item>
+				<el-button type="default" @click="downloadExcelTemplate()" icon="el-icon-download">下载模板</el-button>
+			</el-form-item>
+			<el-form-item>
+				<el-upload action=""
+					accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+					:http-request="uploadOptionFromExcel"
+					:show-file-list="false">
+					<el-button type="success" icon="el-icon-upload2">Excel导入投票项</el-button>
+					</el-upload>
+			</el-form-item>
+			<el-form-item>
+				<el-upload action=""
+					accept="image/*"
+					multiple=""
+					:http-request="uploadThumbs"
+					:show-file-list="false">
+					<el-button type="warning" icon="el-icon-upload2">批量导入缩略图</el-button>
+					</el-upload>
+			</el-form-item>
 		</el-form>
 
 		<el-table :data="queryResult.rows" stripe="" border="" header-cell-class-name="bg-gray">
 			<el-table-column type="index" :index="1" align="center"></el-table-column>
-			<el-table-column prop="optionId" label="optionId" align="center"></el-table-column>
-			<el-table-column prop="name" label="投票项名" align="center"></el-table-column>
-			<el-table-column label="缩略图" align="center">
+			<el-table-column prop="optionId" label="optionId" align="center" width="100"></el-table-column>
+			<el-table-column prop="name" label="投票项名" align="center" width="250"></el-table-column>
+			<el-table-column label="缩略图" align="center" width="100">
 				<template slot-scope="scope">
 					<img v-if="scope.row.thumbUrl" :src="scope.row.thumbUrl" class="row-thumb" />
 				</template>
 			</el-table-column>
 			<el-table-column prop="link" label="超链接"></el-table-column>
+			<el-table-column prop="cheatVoteNum" label="人工加票数" align="center" width="100"></el-table-column>
 			<el-table-column align="center" label="操作" width="200">
 				<div slot-scope="scope" class="button-group">
 					<el-button size="mini" type="warning" @click="openDialog(scope.row.optionId)" icon="el-icon-edit-outline">修改</el-button>
@@ -84,6 +105,9 @@
 				<el-form-item label="超链接" prop="link">
 					<el-input v-model="voteOptionDTO.link"></el-input>
 				</el-form-item>
+				<el-form-item label="人工加票数" prop="cheatVoteNum">
+					<el-input-number v-model="voteOptionDTO.cheatVoteNum" :min="0" :max="10000000"></el-input-number>
+				</el-form-item>
 			</el-form>
 			<span slot="footer">
 				<el-button type="success" @click="saveData()">保存</el-button>
@@ -101,10 +125,10 @@ import ImageCutter from '@/components/ImageCutter';
 export default {
 	data() {
 		return {
+			optionName2option: {},
 			queryParams: {},
 			queryResult: {
 				rows: [],
-				totalRate: 0,
 			},
 			voteOptionDTO: {
 				optionId: null,
@@ -114,6 +138,7 @@ export default {
 				thumbPath: null,
 				thumbUrl: null,
 				link: '',
+				cheatVoteNum: 0,
 			},
 			editRules: {
 				name: [
@@ -151,11 +176,58 @@ export default {
 				data: this.queryParams,
 				truefun: res => {
 					this.queryResult.rows = res;
+					let optionName2option = {};
 					res.forEach(row => {
-						this.queryResult.totalRate += row.rate;
+						optionName2option[row.name] = row;
 					});
+					this.optionName2option = optionName2option;
 				},
 			});
+		},
+		downloadExcelTemplate() {
+			window.open('/static/download/投票项导入模板.xlsx');
+		},
+		uploadOptionFromExcel(v) {
+			let formdata = new FormData();
+			formdata.append('optionExcel', v.file);
+			http.ajax('/activity-admin-service/voteOption/excel/' + this.voteId, {
+				method: 'post',
+				data: formdata,
+				truefun: resData => {
+					this.search();
+				},
+			});
+		},
+		uploadThumbs(v) {
+			let optionName = v.file.name.substr(0, v.file.name.lastIndexOf('.'));
+			let optionDTO = this.optionName2option[optionName];
+			if(optionDTO == null) {
+				Message.error('投票项[' + optionName + ']不存在，无法导入缩略图');
+				return;
+			}
+			ImageCutter.instance(v.file)
+				.compress(600)
+				.then((cutter) => {
+					var file = cutter.display();
+					var formdata = new FormData();
+					formdata.append('voteOptionThumb', file);
+					return http.post('/activity-admin-service/voteOption/thumb', formdata);
+				})
+				.then(res => {
+					if(res.status != 0) {
+		    			throw res.msg;
+		    		}
+					let resData = res.data;
+					optionDTO.thumbPath = resData.thumbPath;
+					optionDTO.thumbUrl = resData.thumbUrl;
+					return http.put('/activity-admin-service/voteOption', optionDTO);
+				})
+				.then(res => {
+					Message.success('投票项[' + optionName + ']缩略图保存成功');
+				})
+				.catch(msg => {
+					Message.error(msg);
+				});
 		},
 		resetForm(formName) {
 			this.$refs[formName].resetFields();
@@ -171,7 +243,7 @@ export default {
 			}
 			this.editDialog = true;
 		},
-		uploadThumb(v) {
+		uploadThumb(v, callback) {
 			ImageCutter.instance(v.file)
 				.compress(600)
 				.then((cutter) => {
@@ -184,9 +256,10 @@ export default {
 						truefun: resData => {
 							this.voteOptionDTO.thumbPath = resData.thumbPath;
 							this.voteOptionDTO.thumbUrl = resData.thumbUrl;
+							callback && callback();
 						},
 					});
-				})
+				});
 		},
 		saveData() {
 			if(this.saveDisabled) {

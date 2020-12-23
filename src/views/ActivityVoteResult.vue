@@ -13,6 +13,7 @@
 		<el-form @submit.native.prevent="">
 			<el-form-item>
 				<el-button type="primary" native-type="submit" @click="searchVoteNum()" icon="el-icon-search">刷新得票数</el-button>
+				<el-button type="primary" native-type="submit" @click="showCheatVoteData = !showCheatVoteData;searchVoteNum()" icon="el-icon-search">包含/不包含人工加票</el-button>
 			</el-form-item>
 		</el-form>
 		
@@ -81,6 +82,7 @@ import http from '@/components/Http';
 export default {
 	data() {
 		return {
+			showCheatVoteData: true,
 			queryParams: {
 				voteId: 0,
 				openId: '',
@@ -119,27 +121,34 @@ export default {
 				truefun: resData => {
 					let voteId2vote = {};
 					let voteName2voteNum = {};
+					let voteName2voteTotalNum = {};
 					resData.forEach(vote => {
 						voteId2vote[vote.optionId] = vote;
 						voteName2voteNum[vote.name] = vote.voteNum;
+						voteName2voteTotalNum[vote.name] = vote.voteNum + vote.cheatVoteNum;
 					});
 					this.voteId2vote = voteId2vote;
 					
 					// 基于准备好的dom，初始化echarts实例
-					var echarts = require('echarts');
-					var myChart = echarts.init(document.getElementById('echarts-main'));
+					let echarts = require('echarts');
+					let myChart = echarts.init(document.getElementById('echarts-main'));
 					// 绘制图表
 					myChart.setOption({
+						title: {
+			                text: this.showCheatVoteData ? '总得票数(含人工加票)' : '真实得票数(不含人工加票)',
+			            },
 					    tooltip: {},
 					    xAxis: {
 					        data: Object.keys(voteName2voteNum),
 					    },
 					    yAxis: {},
-					    series: [{
-					        name: '得票数',
-					        type: 'bar',
-					        data: Object.values(voteName2voteNum),
-					    }]
+					    series: [
+						    {
+						        name: this.showCheatVoteData ? '总得票数' : '真实得票数',
+						        type: 'bar',
+						        data: Object.values(this.showCheatVoteData ? voteName2voteTotalNum : voteName2voteNum),
+						    },
+					    ]
 					});
 					
 					//回调

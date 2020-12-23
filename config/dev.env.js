@@ -3,5 +3,5 @@ var prodEnv = require('./prod.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  API_ROOT: '"http://huodong6.dev"'
+  API_ROOT: '"http://huodong7.dev"'
 })
